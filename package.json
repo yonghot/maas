@@ -1,0 +1,21 @@
+{
+  "name": "maas",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@jpisnice/shadcn-ui-mcp-server": "^1.1.0",
+    "@modelcontextprotocol/server-memory": "^2025.8.4",
+    "@modelcontextprotocol/server-sequential-thinking": "^2025.7.1",
+    "@playwright/mcp": "^0.0.34",
+    "@playwright/test": "^1.54.2",
+    "@upstash/context7-mcp": "^1.0.14",
+    "puppeteer-mcp-server": "^0.7.2"
+  }
+}

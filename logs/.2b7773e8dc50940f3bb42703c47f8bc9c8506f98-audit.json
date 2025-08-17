@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Cursor\\MAAS\\logs\\.2b7773e8dc50940f3bb42703c47f8bc9c8506f98-audit.json",
+    "files": [
+        {
+            "date": 1755355498275,
+            "name": "C:\\Cursor\\MAAS\\logs\\mcp-puppeteer-2025-08-16.log",
+            "hash": "f7c92a08a9327f29f8ab88dd2e40c7ecdb1a0995e855005cef1ffc7200631acf"
+        },
+        {
+            "date": 1755361844033,
+            "name": "C:\\Cursor\\MAAS\\logs\\mcp-puppeteer-2025-08-17.log",
+            "hash": "298c48984e6728f91da67bd4c9950c0263920f346e6cdb5e836c9a9bc06886ed"
+        }
+    ],
+    "hashType": "sha256"
+}
