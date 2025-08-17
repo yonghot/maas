@@ -86,9 +86,16 @@ export class ScoringCalculator {
       id: this.generateId(),
       userInfo,
       score: finalScore,
+      totalScore: finalScore,
       grade: gradeInfo.grade,
+      tier: gradeInfo.grade,
       gradeInfo,
       categories: scoring,
+      categoryScores: {
+        wealth: scoring.wealth.total,
+        sense: scoring.sense.total,
+        physical: scoring.physical.total
+      },
       ...analysis,
       createdAt: new Date()
     };
@@ -170,9 +177,16 @@ export class ScoringCalculator {
       id: this.generateId(),
       userInfo,
       score: finalScore,
+      totalScore: finalScore,
       grade: gradeInfo.grade,
+      tier: gradeInfo.grade,
       gradeInfo,
       categories: scoring,
+      categoryScores: {
+        age: scoring.age.total,
+        appearance: scoring.appearance.total,
+        values: scoring.values.total
+      },
       ...analysis,
       createdAt: new Date()
     };

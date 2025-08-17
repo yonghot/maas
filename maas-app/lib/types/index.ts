@@ -57,6 +57,7 @@ export interface UserInfo {
   gender: Gender;
   age: number;
   ageGroup: AgeGroup;
+  region?: string;
 }
 
 // 리드 정보 (연락처 정보) - 레거시, 인스타그램 회원가입으로 대체됨
@@ -170,12 +171,15 @@ export interface TestResult {
   id: string;
   userInfo: UserInfo;
   score: number;
+  totalScore: number;
   grade: Grade;
+  tier: string;
   gradeInfo: {
     title: string;
     description: string;
     color: string;
   };
+  categoryScores: Record<string, number>;
   categories: MaleScoring | FemaleScoring;
   strengths: string[];
   weaknesses: string[];

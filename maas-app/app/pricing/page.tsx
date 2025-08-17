@@ -48,21 +48,18 @@ export default function PricingPage() {
 
   const plans = [
     {
-      id: 'free',
       ...subscriptionPlans.free,
       popular: false,
       color: 'gray',
       badge: null
     },
     {
-      id: 'basic',
       ...subscriptionPlans.basic,
       popular: true,
       color: 'teal',
       badge: '50% 할인'
     },
     {
-      id: 'premium',
       ...subscriptionPlans.premium,
       popular: false,
       color: 'cyan',
