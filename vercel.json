@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd maas-app && npm run build",
+  "outputDirectory": "maas-app/.next",
+  "installCommand": "cd maas-app && npm install",
+  "framework": "nextjs",
+  "devCommand": "cd maas-app && npm run dev"
+}
