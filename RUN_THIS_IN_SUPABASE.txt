@@ -1,0 +1,44 @@
+=====================================
+SUPABASE SQL EDITOR에서 실행할 내용
+=====================================
+
+1. Supabase 대시보드 접속
+2. 왼쪽 메뉴에서 "SQL Editor" 클릭
+3. "New Query" 버튼 클릭
+4. supabase_schema.sql 파일의 전체 내용을 복사
+5. SQL Editor에 붙여넣기
+6. 우측 상단 "Run" 버튼 클릭 (또는 Ctrl+Enter)
+
+실행 후 확인사항:
+- "Success. No rows returned" 메시지 확인
+- Database > Tables 메뉴에서 다음 테이블 확인:
+  * users
+  * profiles
+  * subscriptions
+  * payments
+  * daily_views
+  * profile_views
+
+=====================================
+환경 변수 설정
+=====================================
+
+Settings > API 페이지에서:
+
+1. Project URL 복사
+   → .env.local의 NEXT_PUBLIC_SUPABASE_URL에 붙여넣기
+
+2. anon public key 복사
+   → .env.local의 NEXT_PUBLIC_SUPABASE_ANON_KEY에 붙여넣기
+
+3. service_role key 복사 (선택사항)
+   → .env.local의 SUPABASE_SERVICE_ROLE_KEY에 붙여넣기
+
+=====================================
+설정 확인
+=====================================
+
+터미널에서:
+npm run setup
+
+모든 항목이 ✅로 표시되면 성공!

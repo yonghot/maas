@@ -27,8 +27,21 @@
       "Bash(npm run lint)",
       "Bash(taskkill:*)",
       "mcp__thinking__sequentialthinking",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(git pull:*)",
+      "WebFetch(domain:www.gayeon.com)",
+      "mcp__sequential-thinking__sequentialthinking",
+      "Bash(git config:*)",
+      "Bash(git push:*)",
+      "Bash(powershell:*)",
+      "Bash(npm run setup:*)",
+      "Bash(node:*)"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright",
+    "shadcn"
+  ]
 }

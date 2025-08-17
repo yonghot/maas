@@ -12,6 +12,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScoringCalculator } from '@/lib/scoring/calculator';
+import { createClient } from '@/lib/supabase/client';
+import { Loader2 } from 'lucide-react';
 
 export default function TestPage() {
   const router = useRouter();
@@ -32,6 +34,8 @@ export default function TestPage() {
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [showUserForm, setShowUserForm] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // 성별에 따른 질문 목록 설정
   useEffect(() => {
@@ -81,20 +85,63 @@ export default function TestPage() {
     setCurrentQuestions([]);
   };
 
-  // 결과 계산 후 정보 입력 페이지로 이동
-  const handleViewResults = () => {
+  // 결과 계산 후 저장
+  const handleViewResults = async () => {
     if (!userInfo) return;
     
-    const calculator = new ScoringCalculator();
-    const result = userInfo.gender === 'male'
-      ? calculator.calculateMaleScore(answers, userInfo)
-      : calculator.calculateFemaleScore(answers, userInfo);
+    setSaving(true);
+    setError(null);
     
-    setResult(result);
-    setTestCompleted(true); // 테스트 완료 상태 설정
-    
-    // 정보 입력 페이지로 이동 (리드 생성을 위해)
-    router.push('/info');
+    try {
+      const calculator = new ScoringCalculator();
+      const result = userInfo.gender === 'male'
+        ? calculator.calculateMaleScore(answers, userInfo)
+        : calculator.calculateFemaleScore(answers, userInfo);
+      
+      setResult(result);
+      setTestCompleted(true);
+      
+      // Supabase에 프로필 저장
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // 프로필 데이터 저장
+        const response = await fetch('/api/profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            gender: userInfo.gender,
+            age: userInfo.age,
+            region: userInfo.region,
+            tier: result.tier,
+            grade: result.grade,
+            totalScore: result.totalScore,
+            categoryScores: result.categoryScores,
+            evaluationData: {
+              answers,
+              userInfo
+            }
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('프로필 저장 실패');
+        }
+        
+        // 프로필 페이지로 이동
+        router.push('/profile');
+      } else {
+        // 로그인하지 않은 경우 정보 입력 페이지로 이동
+        router.push('/info');
+      }
+    } catch (err) {
+      console.error('Save error:', err);
+      setError('결과 저장 중 오류가 발생했습니다.');
+      setSaving(false);
+    }
   };
 
   // 진행률 계산
@@ -112,11 +159,11 @@ export default function TestPage() {
   // 사용자 정보 입력 화면
   if (showUserForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
             <CardHeader className="pb-4">
-              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
                 MAAS 테스트
               </CardTitle>
               <p className="text-center text-gray-600 mt-2">기본 정보를 입력해주세요</p>
@@ -133,11 +180,11 @@ export default function TestPage() {
   // 테스트 완료 화면
   if (isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
             <CardHeader>
-              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
                 테스트 완료!
               </CardTitle>
             </CardHeader>
@@ -175,7 +222,7 @@ export default function TestPage() {
   // 질문이 없는 경우
   if (currentQuestions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
             <CardContent className="pt-6">
