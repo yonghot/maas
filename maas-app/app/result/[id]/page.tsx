@@ -15,11 +15,23 @@ import { useTestStore } from '@/store/test-store';
 export default function ResultPage() {
   const params = useParams();
   const router = useRouter();
-  const { result: storeResult } = useTestStore();
+  const { result: storeResult, hasSubmittedLead, isTestCompleted } = useTestStore();
   const [result, setResult] = useState<TestResult | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 테스트를 완료하지 않았으면 테스트 페이지로 리다이렉트
+    if (!isTestCompleted) {
+      router.push('/test');
+      return;
+    }
+
+    // 정보를 입력하지 않았으면 정보 입력 페이지로 리다이렉트
+    if (!hasSubmittedLead) {
+      router.push('/info');
+      return;
+    }
+
     const loadResult = async () => {
       try {
         if (storeResult) {
@@ -31,6 +43,7 @@ export default function ResultPage() {
           setResult(finalResult);
         } else {
           console.error('결과가 없습니다. 테스트를 먼저 완료해주세요.');
+          router.push('/test');
         }
       } catch (error) {
         console.error('결과 로딩 실패:', error);
@@ -40,7 +53,7 @@ export default function ResultPage() {
     };
 
     loadResult();
-  }, [params.id, storeResult]);
+  }, [params.id, storeResult, hasSubmittedLead, isTestCompleted, router]);
 
   const handleGoBack = () => {
     router.push('/test');

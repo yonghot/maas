@@ -1,11 +1,16 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { UserInfo, UserAnswer, TestResult, Gender } from '@/lib/types';
+import { UserInfo, UserAnswer, TestResult, Gender, UserLead } from '@/lib/types';
 
 interface TestState {
   // 사용자 정보
   userInfo: UserInfo | null;
   setUserInfo: (info: UserInfo) => void;
+  
+  // 리드 정보 (연락처 정보)
+  userLead: UserLead | null;
+  setUserLead: (lead: UserLead) => void;
+  hasSubmittedLead: boolean;  // 리드 정보 제출 여부
   
   // 답변 관리
   answers: UserAnswer[];
@@ -17,6 +22,8 @@ interface TestState {
   setCurrentQuestionIndex: (index: number) => void;
   nextQuestion: () => void;
   previousQuestion: () => void;
+  isTestCompleted: boolean;  // 테스트 완료 여부
+  setTestCompleted: (completed: boolean) => void;
   
   // 결과
   result: TestResult | null;
@@ -31,12 +38,21 @@ export const useTestStore = create<TestState>()(
     (set) => ({
       // 초기 상태
       userInfo: null,
+      userLead: null,
+      hasSubmittedLead: false,
       answers: [],
       currentQuestionIndex: 0,
+      isTestCompleted: false,
       result: null,
       
       // 사용자 정보 설정
       setUserInfo: (info) => set({ userInfo: info }),
+      
+      // 리드 정보 설정
+      setUserLead: (lead) => set({ 
+        userLead: lead, 
+        hasSubmittedLead: true 
+      }),
       
       // 답변 관리
       setAnswer: (answer) => set((state) => {
@@ -63,6 +79,7 @@ export const useTestStore = create<TestState>()(
       previousQuestion: () => set((state) => ({ 
         currentQuestionIndex: Math.max(0, state.currentQuestionIndex - 1) 
       })),
+      setTestCompleted: (completed) => set({ isTestCompleted: completed }),
       
       // 결과 설정
       setResult: (result) => set({ result }),
@@ -70,8 +87,11 @@ export const useTestStore = create<TestState>()(
       // 테스트 초기화
       resetTest: () => set({
         userInfo: null,
+        userLead: null,
+        hasSubmittedLead: false,
         answers: [],
         currentQuestionIndex: 0,
+        isTestCompleted: false,
         result: null
       })
     }),
@@ -79,8 +99,11 @@ export const useTestStore = create<TestState>()(
       name: 'maas-test-storage',
       partialize: (state) => ({
         userInfo: state.userInfo,
+        userLead: state.userLead,
+        hasSubmittedLead: state.hasSubmittedLead,
         answers: state.answers,
-        currentQuestionIndex: state.currentQuestionIndex
+        currentQuestionIndex: state.currentQuestionIndex,
+        isTestCompleted: state.isTestCompleted
       })
     }
   )

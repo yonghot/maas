@@ -25,7 +25,8 @@ export default function TestPage() {
     nextQuestion,
     previousQuestion,
     resetTest,
-    setResult
+    setResult,
+    setTestCompleted
   } = useTestStore();
 
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
@@ -80,7 +81,7 @@ export default function TestPage() {
     setCurrentQuestions([]);
   };
 
-  // 결과 페이지로 이동
+  // 결과 계산 후 정보 입력 페이지로 이동
   const handleViewResults = () => {
     if (!userInfo) return;
     
@@ -90,8 +91,10 @@ export default function TestPage() {
       : calculator.calculateFemaleScore(answers, userInfo);
     
     setResult(result);
-    const resultId = Date.now().toString();
-    router.push(`/result/${resultId}`);
+    setTestCompleted(true); // 테스트 완료 상태 설정
+    
+    // 정보 입력 페이지로 이동 (리드 생성을 위해)
+    router.push('/info');
   };
 
   // 진행률 계산

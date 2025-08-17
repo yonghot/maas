@@ -59,6 +59,22 @@ export interface UserInfo {
   ageGroup: AgeGroup;
 }
 
+// 리드 정보 (연락처 정보)
+export interface UserLead {
+  name: string;
+  phone: string;
+  email?: string;
+  age: number;
+  gender: Gender;
+  region?: string;
+  // 동의 항목
+  privacyConsent: boolean;         // 개인정보 수집 동의 (필수)
+  marketingConsent?: boolean;       // 마케팅 수신 동의 (선택)
+  // 메타 정보
+  submittedAt?: Date;
+  testId?: string;                 // 연결된 테스트 ID
+}
+
 // 테스트 결과
 export interface TestResult {
   id: string;
