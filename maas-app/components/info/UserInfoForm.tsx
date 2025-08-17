@@ -11,12 +11,17 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { UserLead } from '@/lib/types';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+// 에러 메시지를 위한 타입
+type FormErrors = {
+  [K in keyof UserLead]?: string;
+};
+
 export default function UserInfoForm() {
   const router = useRouter();
   const { setUserLead, userInfo } = useTestStore();
   
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<UserLead>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
   
   const [formData, setFormData] = useState<Partial<UserLead>>({
     name: '',
@@ -56,27 +61,27 @@ export default function UserInfoForm() {
 
   // 유효성 검사
   const validateForm = (): boolean => {
-    const newErrors: Partial<UserLead> = {};
+    const newErrors: FormErrors = {};
     
     if (!formData.name || formData.name.length < 2) {
-      newErrors.name = '이름을 입력해주세요' as any;
+      newErrors.name = '이름을 입력해주세요';
     }
     
     const phoneNumbers = formData.phone?.replace(/[^\d]/g, '');
     if (!phoneNumbers || phoneNumbers.length < 10) {
-      newErrors.phone = '올바른 휴대폰 번호를 입력해주세요' as any;
+      newErrors.phone = '올바른 휴대폰 번호를 입력해주세요';
     }
     
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = '올바른 이메일 주소를 입력해주세요' as any;
+      newErrors.email = '올바른 이메일 주소를 입력해주세요';
     }
     
     if (!formData.age || formData.age < 15 || formData.age > 100) {
-      newErrors.age = '올바른 나이를 입력해주세요' as any;
+      newErrors.age = '올바른 나이를 입력해주세요';
     }
     
     if (!formData.privacyConsent) {
-      newErrors.privacyConsent = '개인정보 수집 동의는 필수입니다' as any;
+      newErrors.privacyConsent = '개인정보 수집 동의는 필수입니다';
     }
     
     setErrors(newErrors);
@@ -136,7 +141,7 @@ export default function UserInfoForm() {
         {errors.name && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
-            {errors.name as string}
+            {errors.name}
           </p>
         )}
       </div>
@@ -158,7 +163,7 @@ export default function UserInfoForm() {
         {errors.phone && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
-            {errors.phone as string}
+            {errors.phone}
           </p>
         )}
       </div>
@@ -179,7 +184,7 @@ export default function UserInfoForm() {
         {errors.email && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
-            {errors.email as string}
+            {errors.email}
           </p>
         )}
       </div>
@@ -202,7 +207,7 @@ export default function UserInfoForm() {
         {errors.age && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
-            {errors.age as string}
+            {errors.age}
           </p>
         )}
       </div>
@@ -299,7 +304,7 @@ export default function UserInfoForm() {
         {errors.privacyConsent && (
           <p className="text-sm text-red-500 flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" />
-            {errors.privacyConsent as string}
+            {errors.privacyConsent}
           </p>
         )}
       </div>
