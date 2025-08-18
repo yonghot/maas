@@ -36,7 +36,9 @@
       "Bash(powershell:*)",
       "Bash(npm run setup:*)",
       "Bash(node:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(git fetch:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   },
