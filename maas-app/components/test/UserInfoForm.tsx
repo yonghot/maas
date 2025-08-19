@@ -1,165 +1,115 @@
 'use client';
 
 import { useState } from 'react';
-import { Gender, UserInfo, AgeGroup } from '@/lib/types';
+import { UserInfo, Gender } from '@/lib/types';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Card } from '@/components/ui/card';
+import { Users, User2 } from 'lucide-react';
 
 interface UserInfoFormProps {
-  onSubmit: (userInfo: UserInfo) => void;
+  onSubmit: (info: UserInfo) => void;
 }
 
 export function UserInfoForm({ onSubmit }: UserInfoFormProps) {
-  const [formData, setFormData] = useState({
-    nickname: '',
-    gender: '' as Gender | '',
-    age: ''
-  });
+  const [gender, setGender] = useState<Gender | null>(null);
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // 나이 그룹 계산
-  const getAgeGroup = (age: number): AgeGroup => {
-    if (age >= 20 && age <= 25) return '20-25';
-    if (age >= 26 && age <= 30) return '26-30';
-    if (age >= 31 && age <= 35) return '31-35';
-    if (age >= 36 && age <= 40) return '36-40';
-    return '40+';
-  };
-
-  // 폼 검증
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.gender) {
-      newErrors.gender = '성별을 선택해주세요.';
-    }
-
-    if (!formData.age) {
-      newErrors.age = '나이를 입력해주세요.';
-    } else {
-      const ageNum = parseInt(formData.age);
-      if (isNaN(ageNum) || ageNum < 20 || ageNum > 60) {
-        newErrors.age = '20-60 사이의 나이를 입력해주세요.';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // 폼 제출
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!gender) return;
 
-    const age = parseInt(formData.age);
-    const userInfo: UserInfo = {
-      nickname: formData.nickname.trim() || undefined,
-      gender: formData.gender as Gender,
-      age,
-      ageGroup: getAgeGroup(age)
-    };
-
-    onSubmit(userInfo);
-  };
-
-  // 입력값 변경 처리
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // 에러 메시지 제거
-    if (errors[field]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
-    }
+    // 성별만 전송, 나머지는 기본값
+    onSubmit({
+      gender,
+      age: 25, // 기본값
+      region: 'seoul' // 기본값
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* 닉네임 입력 */}
-      <div className="space-y-2">
-        <Label htmlFor="nickname">닉네임 (선택사항)</Label>
-        <Input
-          id="nickname"
-          type="text"
-          placeholder="닉네임을 입력하세요"
-          value={formData.nickname}
-          onChange={(e) => handleInputChange('nickname', e.target.value)}
-          maxLength={20}
-        />
-        <p className="text-xs text-gray-500">
-          닉네임을 입력하지 않으면 익명으로 진행됩니다.
-        </p>
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-teal-800">
+            성별을 선택해주세요
+          </h3>
+          <p className="text-sm text-gray-600 mt-1">
+            성별에 따라 다른 질문이 주어집니다.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <Card
+            className={`p-6 cursor-pointer transition-all border-2 touch-manipulation ${
+              gender === 'male'
+                ? 'border-blue-500 bg-blue-50 shadow-lg scale-105'
+                : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+            }`}
+            onClick={() => setGender('male')}
+          >
+            <div className="flex flex-col items-center space-y-3">
+              <div className={`p-4 rounded-full ${
+                gender === 'male' ? 'bg-blue-100' : 'bg-gray-100'
+              }`}>
+                <svg 
+                  className={`w-10 h-10 ${
+                    gender === 'male' ? 'text-blue-600' : 'text-gray-600'
+                  }`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {/* Mars symbol - 남성 기호 */}
+                  <path d="M9.5 11c1.93 0 3.5 1.57 3.5 3.5S11.43 18 9.5 18 6 16.43 6 14.5 7.57 11 9.5 11m0-2C6.46 9 4 11.46 4 14.5S6.46 20 9.5 20s5.5-2.46 5.5-5.5c0-1.16-.36-2.23-.97-3.12L18 7.42V10h2V4h-6v2h2.58l-3.97 3.97C11.73 9.36 10.66 9 9.5 9z"/>
+                </svg>
+              </div>
+              <span className={`font-medium text-base ${
+                gender === 'male' ? 'text-blue-700' : 'text-gray-700'
+              }`}>
+                남성
+              </span>
+            </div>
+          </Card>
+
+          <Card
+            className={`p-6 cursor-pointer transition-all border-2 touch-manipulation ${
+              gender === 'female'
+                ? 'border-pink-500 bg-pink-50 shadow-lg scale-105'
+                : 'border-gray-200 hover:border-pink-300 hover:shadow-md'
+            }`}
+            onClick={() => setGender('female')}
+          >
+            <div className="flex flex-col items-center space-y-3">
+              <div className={`p-4 rounded-full ${
+                gender === 'female' ? 'bg-pink-100' : 'bg-gray-100'
+              }`}>
+                <svg 
+                  className={`w-10 h-10 ${
+                    gender === 'female' ? 'text-pink-600' : 'text-gray-600'
+                  }`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {/* Venus symbol - 여성 기호 */}
+                  <path d="M12 4a4 4 0 0 1 4 4c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4m0-2C8.69 2 6 4.69 6 8c0 2.97 2.16 5.44 5 5.92V16h-2v2h2v2h2v-2h2v-2h-2v-2.08c2.84-.48 5-2.95 5-5.92 0-3.31-2.69-6-6-6z"/>
+                </svg>
+              </div>
+              <span className={`font-medium text-base ${
+                gender === 'female' ? 'text-pink-700' : 'text-gray-700'
+              }`}>
+                여성
+              </span>
+            </div>
+          </Card>
+        </div>
       </div>
 
-      {/* 성별 선택 */}
-      <div className="space-y-3">
-        <Label>성별</Label>
-        <RadioGroup
-          value={formData.gender}
-          onValueChange={(value) => handleInputChange('gender', value)}
-          className="flex gap-6"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="male" id="male" />
-            <Label htmlFor="male" className="cursor-pointer">남성</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="female" id="female" />
-            <Label htmlFor="female" className="cursor-pointer">여성</Label>
-          </div>
-        </RadioGroup>
-        {errors.gender && (
-          <p className="text-sm text-red-500">{errors.gender}</p>
-        )}
-      </div>
-
-      {/* 나이 입력 */}
-      <div className="space-y-2">
-        <Label htmlFor="age">나이</Label>
-        <Input
-          id="age"
-          type="number"
-          placeholder="만 나이를 입력하세요"
-          value={formData.age}
-          onChange={(e) => handleInputChange('age', e.target.value)}
-          min="20"
-          max="60"
-        />
-        {errors.age && (
-          <p className="text-sm text-red-500">{errors.age}</p>
-        )}
-        <p className="text-xs text-gray-500">
-          만 20세 ~ 60세까지 입력 가능합니다.
-        </p>
-      </div>
-
-      {/* 제출 버튼 */}
-      <Button 
-        type="submit" 
-        className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg transition-all"
-        size="lg"
+      <Button
+        type="submit"
+        disabled={!gender}
+        className="w-full h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
       >
         테스트 시작하기
       </Button>
 
-      {/* 안내 메시지 */}
-      <div className="text-xs text-gray-600 text-center space-y-1 bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg">
-        <p>• 테스트는 약 5-10분 소요됩니다</p>
-        <p>• 정확한 결과를 위해 솔직하게 답변해주세요</p>
-        <p>• 언제든지 테스트를 다시 시작할 수 있습니다</p>
-      </div>
     </form>
   );
 }

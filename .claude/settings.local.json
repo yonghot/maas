@@ -38,7 +38,15 @@
       "Bash(node:*)",
       "WebFetch(domain:github.com)",
       "Bash(git fetch:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:maas.vercel.app)",
+      "WebFetch(domain:maas-app.vercel.app)",
+      "WebFetch(domain:maas-eight.vercel.app)",
+      "Bash(cat:*)",
+      "Bash(npm ci:*)",
+      "Bash(git reset:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   },

@@ -46,7 +46,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     onAnswerChange(question.id, newValue);
   };
 
-  // Select 타입 질문 렌더링
+  // Select 타입 질문 렌더링 - 모바일 최적화
   const renderSelectQuestion = () => {
     if (!question.options) return null;
 
@@ -62,14 +62,16 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
         className="space-y-3"
       >
         {question.options.map((option: QuestionOption) => (
-          <div key={option.value.toString()} className="flex items-center space-x-3">
+          <div key={option.value.toString()} 
+               className="flex items-center space-x-3 p-3 rounded-xl bg-teal-50/50 hover:bg-teal-100/50 transition-colors touch-manipulation">
             <RadioGroupItem
               value={option.value.toString()}
               id={`${question.id}-${option.value}`}
+              className="text-teal-600 border-teal-300 data-[state=checked]:bg-teal-600"
             />
             <Label
               htmlFor={`${question.id}-${option.value}`}
-              className="flex-1 cursor-pointer text-sm leading-relaxed"
+              className="flex-1 cursor-pointer text-sm sm:text-base leading-relaxed text-center text-teal-700"
             >
               {option.label}
             </Label>
@@ -79,7 +81,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     );
   };
 
-  // Slider 타입 질문 렌더링
+  // Slider 타입 질문 렌더링 - 모바일 최적화
   const renderSliderQuestion = () => {
     const min = question.min || 0;
     const max = question.max || 100;
@@ -87,35 +89,36 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     const currentValue = typeof localValue === 'number' ? localValue : min;
 
     return (
-      <div className="space-y-4">
-        {/* 슬라이더 */}
-        <div className="px-3">
+      <div className="space-y-6">
+        {/* 현재 값 표시 - 모바일에서 크게 */}
+        <div className="text-center bg-teal-50 rounded-2xl p-4">
+          <span className="text-3xl font-bold text-teal-600">
+            {currentValue}
+          </span>
+          {question.labels && question.labels[currentValue] && (
+            <p className="text-sm text-teal-600/80 mt-2">
+              {question.labels[currentValue]}
+            </p>
+          )}
+        </div>
+
+        {/* 슬라이더 - 터치 영역 확대 */}
+        <div className="px-4 py-2">
           <Slider
             value={[currentValue]}
             onValueChange={(values) => handleValueChange(values[0])}
             min={min}
             max={max}
             step={step}
-            className="w-full"
+            className="w-full touch-manipulation"
           />
-        </div>
-
-        {/* 현재 값 표시 */}
-        <div className="text-center">
-          <span className="text-lg font-semibold text-primary">
-            {currentValue}
-          </span>
-          {question.labels && question.labels[currentValue] && (
-            <p className="text-sm text-gray-600 mt-1">
-              {question.labels[currentValue]}
-            </p>
-          )}
         </div>
 
         {/* 라벨 범위 표시 */}
         {question.labels && (
-          <div className="flex justify-between text-xs text-gray-500 px-1">
+          <div className="flex justify-between text-xs sm:text-sm text-teal-600/70 px-2">
             <span>{question.labels[min] || min}</span>
+            <span className="text-center flex-1">{question.labels[Math.floor((min + max) / 2)]}</span>
             <span>{question.labels[max] || max}</span>
           </div>
         )}
@@ -123,10 +126,10 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     );
   };
 
-  // Number 타입 질문 렌더링
+  // Number 타입 질문 렌더링 - 모바일 최적화
   const renderNumberQuestion = () => {
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <Input
           type="number"
           value={localValue}
@@ -139,12 +142,12 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
           }}
           min={question.min}
           max={question.max}
-          placeholder={`${question.min || 0} ~ ${question.max || 100} 사이의 값을 입력하세요`}
-          className="text-center text-lg"
+          placeholder={`${question.min || 0} ~ ${question.max || 100}`}
+          className="text-center text-xl font-semibold h-14 bg-teal-50/50 border-teal-200 focus:border-teal-400 text-teal-700 placeholder:text-teal-400"
         />
         
         {question.min !== undefined && question.max !== undefined && (
-          <p className="text-xs text-gray-500 text-center">
+          <p className="text-sm text-teal-600/70 text-center">
             입력 범위: {question.min} ~ {question.max}
           </p>
         )}
@@ -152,11 +155,11 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     );
   };
 
-  // BMI Calculator 타입 질문 렌더링 (미래 확장용)
+  // BMI Calculator 타입 질문 렌더링
   const renderBMICalculator = () => {
     return (
       <div className="space-y-4">
-        <p className="text-center text-gray-600">
+        <p className="text-center text-teal-600 p-6 bg-teal-50 rounded-xl">
           BMI 계산기 기능은 곧 추가될 예정입니다.
         </p>
       </div>
@@ -176,7 +179,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
         return renderBMICalculator();
       default:
         return (
-          <p className="text-center text-gray-500">
+          <p className="text-center text-teal-500 p-6">
             지원하지 않는 질문 타입입니다.
           </p>
         );
@@ -184,43 +187,34 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
   };
 
   return (
-    <Card className="w-full shadow-2xl border-0 backdrop-blur-lg bg-white/90">
-      <CardHeader className="pb-4">
+    <Card className="w-full max-w-lg mx-auto shadow-xl border-0 backdrop-blur-lg bg-white/95">
+      <CardHeader className="pb-4 text-center">
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-purple-700 bg-gradient-to-r from-purple-100 to-pink-100 px-3 py-1.5 rounded-full">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-xs font-medium text-teal-700 bg-gradient-to-r from-teal-100 to-teal-50 px-4 py-1.5 rounded-full">
               {question.category}
             </span>
             {question.required && (
-              <span className="text-xs font-medium text-red-600 bg-red-100 px-3 py-1.5 rounded-full">
+              <span className="text-xs font-medium text-teal-600 bg-teal-100 px-3 py-1.5 rounded-full">
                 필수
               </span>
             )}
           </div>
           
-          <CardTitle className="text-xl leading-relaxed text-gray-800">
+          <CardTitle className="text-lg sm:text-xl leading-relaxed text-teal-800 px-2">
             {question.text}
           </CardTitle>
           
           {question.subText && (
-            <CardDescription className="text-sm text-gray-600">
+            <CardDescription className="text-sm text-teal-600/70 px-2">
               {question.subText}
             </CardDescription>
           )}
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 px-4 sm:px-6">
         {renderQuestionContent()}
-        
-        {/* 답변 상태 표시 */}
-        {answer && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-            <p className="text-xs text-purple-700 font-medium">
-              ✓ 답변 완료: {typeof answer.value === 'number' ? answer.value : `"${answer.value}"`}
-            </p>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

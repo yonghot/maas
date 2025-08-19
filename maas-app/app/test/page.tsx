@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTestStore } from '@/store/test-store';
 import { UserInfoForm } from '@/components/test/UserInfoForm';
@@ -13,7 +13,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScoringCalculator } from '@/lib/scoring/calculator';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function TestPage() {
   const router = useRouter();
@@ -22,10 +23,6 @@ export default function TestPage() {
     setUserInfo,
     answers,
     setAnswer,
-    currentQuestionIndex,
-    setCurrentQuestionIndex,
-    nextQuestion,
-    previousQuestion,
     resetTest,
     setResult,
     setTestCompleted
@@ -33,9 +30,10 @@ export default function TestPage() {
 
   const [currentQuestions, setCurrentQuestions] = useState<Question[]>([]);
   const [showUserForm, setShowUserForm] = useState(true);
-  const [isComplete, setIsComplete] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   // 성별에 따른 질문 목록 설정
   useEffect(() => {
@@ -45,11 +43,20 @@ export default function TestPage() {
     }
   }, [userInfo?.gender]);
 
+  // 스크롤 상태 감지
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // 사용자 정보 설정 완료 처리
   const handleUserInfoSubmit = (info: UserInfo) => {
     setUserInfo(info);
     setShowUserForm(false);
-    setCurrentQuestionIndex(0);
   };
 
   // 답변 처리
@@ -61,33 +68,46 @@ export default function TestPage() {
     });
   };
 
-  // 다음 질문으로 이동
-  const handleNext = () => {
-    if (currentQuestionIndex < currentQuestions.length - 1) {
-      nextQuestion();
-    } else {
-      setIsComplete(true);
-    }
+  // 모든 필수 질문에 답변했는지 확인
+  const isAllAnswered = () => {
+    const requiredQuestions = currentQuestions.filter(q => q.required !== false);
+    return requiredQuestions.every(q => 
+      answers.some(a => a.questionId === q.id)
+    );
   };
 
-  // 이전 질문으로 이동
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      previousQuestion();
-    }
+  // 답변 가져오기
+  const getAnswer = (questionId: string) => {
+    return answers.find(answer => answer.questionId === questionId);
+  };
+
+  // 진행률 계산
+  const calculateProgress = () => {
+    const requiredQuestions = currentQuestions.filter(q => q.required !== false);
+    const answeredCount = requiredQuestions.filter(q => 
+      answers.some(a => a.questionId === q.id)
+    ).length;
+    return requiredQuestions.length > 0 
+      ? (answeredCount / requiredQuestions.length) * 100 
+      : 0;
+  };
+
+  // 맨 위로 스크롤
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // 테스트 다시 시작
   const handleRestart = () => {
     resetTest();
     setShowUserForm(true);
-    setIsComplete(false);
     setCurrentQuestions([]);
+    scrollToTop();
   };
 
   // 결과 계산 후 저장
   const handleViewResults = async () => {
-    if (!userInfo) return;
+    if (!userInfo || !isAllAnswered()) return;
     
     setSaving(true);
     setError(null);
@@ -101,42 +121,8 @@ export default function TestPage() {
       setResult(result);
       setTestCompleted(true);
       
-      // Supabase에 프로필 저장
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // 프로필 데이터 저장
-        const response = await fetch('/api/profile', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            gender: userInfo.gender,
-            age: userInfo.age,
-            region: userInfo.region,
-            tier: result.tier,
-            grade: result.grade,
-            totalScore: result.totalScore,
-            categoryScores: result.categoryScores,
-            evaluationData: {
-              answers,
-              userInfo
-            }
-          }),
-        });
-        
-        if (!response.ok) {
-          throw new Error('프로필 저장 실패');
-        }
-        
-        // 프로필 페이지로 이동
-        router.push('/profile');
-      } else {
-        // 로그인하지 않은 경우 정보 입력 페이지로 이동
-        router.push('/info');
-      }
+      // 회원가입 유도 페이지로 이동
+      router.push('/signup-result');
     } catch (err) {
       console.error('Save error:', err);
       setError('결과 저장 중 오류가 발생했습니다.');
@@ -144,29 +130,26 @@ export default function TestPage() {
     }
   };
 
-  // 진행률 계산
-  const progress = currentQuestions.length > 0 
-    ? ((currentQuestionIndex + 1) / currentQuestions.length) * 100 
-    : 0;
-
-  // 현재 답변 가져오기
-  const getCurrentAnswer = () => {
-    if (currentQuestions.length === 0) return undefined;
-    const currentQuestion = currentQuestions[currentQuestionIndex];
-    return answers.find(answer => answer.questionId === currentQuestion.id);
-  };
-
   // 사용자 정보 입력 화면
   if (showUserForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
         <div className="w-full max-w-md">
-          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
-                MAAS 테스트
+          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
+            <CardHeader className="pb-4 text-center">
+              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+                나의 결혼 점수는?
               </CardTitle>
-              <p className="text-center text-gray-600 mt-2">기본 정보를 입력해주세요</p>
+              <div className="mt-3 px-4">
+                <p className="text-sm sm:text-base text-gray-700 font-medium mb-2">
+                  우리 모두가 알고있지만 감히 대놓고 말하지는 못하는 불편한 진실.
+                </p>
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  우리는 결국 서로 비슷한 점수의 사람들끼리 만나게 됩니다.<br />
+                  당신이 배우자로서 가지는 이성적 매력 수준을 진단하고,<br />
+                  나와 비슷한 점수의 사람들은 어떠한 조건을 가지고 있는지 알아보세요!
+                </p>
+              </div>
             </CardHeader>
             <CardContent>
               <UserInfoForm onSubmit={handleUserInfoSubmit} />
@@ -177,58 +160,16 @@ export default function TestPage() {
     );
   }
 
-  // 테스트 완료 화면
-  if (isComplete) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
-            <CardHeader>
-              <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
-                테스트 완료!
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center space-y-2">
-                <p className="text-lg text-gray-700 font-medium">
-                  모든 질문에 답변해주셨습니다
-                </p>
-                <p className="text-sm text-gray-500">
-                  총 {answers.length}개의 답변을 수집했습니다
-                </p>
-              </div>
-              <div className="flex gap-3">
-                <Button 
-                  onClick={handleRestart} 
-                  variant="outline" 
-                  className="flex-1 h-12 text-gray-700 border-gray-300 hover:bg-gray-50"
-                >
-                  다시 시작
-                </Button>
-                <Button 
-                  className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg" 
-                  onClick={handleViewResults}
-                >
-                  결과 보기
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   // 질문이 없는 경우
   if (currentQuestions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
         <div className="w-full max-w-md">
-          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/90">
+          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center space-y-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-                <p className="text-center text-gray-600">질문을 불러오는 중...</p>
+                <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
+                <p className="text-center text-teal-600/80">질문을 불러오는 중...</p>
               </div>
             </CardContent>
           </Card>
@@ -237,72 +178,121 @@ export default function TestPage() {
     );
   }
 
-  const currentQuestion = currentQuestions[currentQuestionIndex];
-  const currentAnswer = getCurrentAnswer();
+  const progress = calculateProgress();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4">
-      <div className="max-w-2xl mx-auto">
-        {/* 헤더 */}
-        <div className="mb-6 bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">MAAS 테스트</h1>
-            <div className="bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-full">
-              <span className="text-sm font-medium text-gray-700">
-                {userInfo?.nickname || (userInfo?.gender === 'male' ? '남성' : '여성')}
+    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30">
+      {/* 상단 고정 헤더 */}
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-md">
+        <div className="max-w-2xl mx-auto p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg sm:text-xl font-bold text-teal-700">
+              나의 결혼 점수는?
+            </h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRestart}
+              className="text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+            >
+              다시 시작
+            </Button>
+          </div>
+          
+          {/* 진행률 바 */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-medium">
+              <span className="text-teal-600/70">진행률</span>
+              <span className="text-teal-600">
+                {Math.round(progress)}%
               </span>
             </div>
+            <Progress value={progress} className="h-2 bg-teal-100" />
           </div>
-          
-          {/* 진행률 */}
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm font-medium">
-              <span className="text-gray-600">진행률</span>
-              <span className="text-purple-600 font-bold">{currentQuestionIndex + 1} / {currentQuestions.length}</span>
-            </div>
-            <Progress value={progress} className="h-3 bg-gray-200" />
-          </div>
-        </div>
-
-        {/* 질문 카드 */}
-        <QuestionCard
-          question={currentQuestion}
-          answer={currentAnswer}
-          onAnswerChange={handleAnswerChange}
-        />
-
-        {/* 네비게이션 버튼 */}
-        <div className="mt-6 flex gap-3">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentQuestionIndex === 0}
-            className="flex-1 h-12 text-gray-700 border-gray-300 hover:bg-gray-50 disabled:opacity-50 transition-all"
-          >
-            이전
-          </Button>
-          
-          <Button
-            onClick={handleNext}
-            disabled={!currentAnswer}
-            className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg disabled:opacity-50 transition-all"
-          >
-            {currentQuestionIndex === currentQuestions.length - 1 ? '완료' : '다음'}
-          </Button>
-        </div>
-
-        {/* 테스트 재시작 버튼 */}
-        <div className="mt-4 text-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRestart}
-            className="text-gray-500 hover:text-purple-600 transition-colors"
-          >
-            테스트 다시 시작
-          </Button>
         </div>
       </div>
+
+      {/* 질문 목록 - 무한 스크롤 */}
+      <div className="max-w-2xl mx-auto p-4 pt-8 pb-32">
+        <div className="space-y-6">
+          {currentQuestions.map((question, index) => (
+            <motion.div
+              key={question.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+            >
+              <div className="relative">
+                {/* 질문 번호 */}
+                <div className="absolute -left-2 -top-2 z-10">
+                  <div className="w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                    {index + 1}
+                  </div>
+                </div>
+                
+                <QuestionCard
+                  question={question}
+                  answer={getAnswer(question.id)}
+                  onAnswerChange={handleAnswerChange}
+                />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+        
+        <div ref={bottomRef} />
+      </div>
+
+      {/* 하단 고정 완료 버튼 */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-teal-100 safe-area-padding">
+        <div className="max-w-2xl mx-auto p-4">
+          <div className="flex flex-col gap-3">
+            {error && (
+              <p className="text-center text-sm text-red-600 bg-red-50 p-2 rounded-lg">
+                {error}
+              </p>
+            )}
+            
+            <Button
+              onClick={handleViewResults}
+              disabled={!isAllAnswered() || saving}
+              className="w-full h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  제출 중...
+                </>
+              ) : (
+                <>
+                  {isAllAnswered() ? '제출하기' : `${currentQuestions.filter(q => q.required !== false).length - currentQuestions.filter(q => q.required !== false && getAnswer(q.id)).length}개 질문 남음`}
+                </>
+              )}
+            </Button>
+            
+            {!isAllAnswered() && (
+              <p className="text-center text-xs text-teal-600/70">
+                모든 필수 질문에 답변해주세요
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 맨 위로 가기 버튼 */}
+      <AnimatePresence>
+        {showScrollTop && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={scrollToTop}
+            className="fixed bottom-24 right-4 z-30 w-12 h-12 bg-teal-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-teal-600 transition-colors touch-manipulation"
+          >
+            <ChevronUp className="w-6 h-6" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
