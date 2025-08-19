@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { UserInfo, Gender } from '@/lib/types';
+import { UserInfo, Gender, AgeGroup } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Users, User2 } from 'lucide-react';
@@ -13,14 +13,24 @@ interface UserInfoFormProps {
 export function UserInfoForm({ onSubmit }: UserInfoFormProps) {
   const [gender, setGender] = useState<Gender | null>(null);
 
+  const getAgeGroup = (age: number): AgeGroup => {
+    if (age <= 25) return '20-25';
+    if (age <= 30) return '26-30';
+    if (age <= 35) return '31-35';
+    if (age <= 40) return '36-40';
+    return '40+';
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!gender) return;
 
+    const age = 25; // 기본값
     // 성별만 전송, 나머지는 기본값
     onSubmit({
       gender,
-      age: 25, // 기본값
+      age,
+      ageGroup: getAgeGroup(age),
       region: 'seoul' // 기본값
     });
   };

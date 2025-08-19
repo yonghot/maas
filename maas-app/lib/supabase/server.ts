@@ -47,3 +47,24 @@ export async function createServerActionClient() {
     }
   );
 }
+
+// API Route용 클라이언트 함수 추가
+export function createClient() {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get() {
+          return undefined;
+        },
+        set() {
+          // API route에서는 쿠키 설정 불필요
+        },
+        remove() {
+          // API route에서는 쿠키 제거 불필요
+        },
+      },
+    }
+  );
+}

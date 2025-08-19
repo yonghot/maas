@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ data, type: 'registered' });
     } else {
       // 익명 사용자의 테스트 결과 저장
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       const sessionId = cookieStore.get('session_id')?.value || 
                        `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       
