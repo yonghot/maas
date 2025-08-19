@@ -130,6 +130,37 @@
 34. "지금까지 @PRD.md @USER_PROMPTS.md 업데이트 해주고, 깃허브에 푸시해줘"
    - 문서 업데이트 및 GitHub 푸시 요청
 
+35. "깃허브에 푸시 한거 맞아? 확인이 안되는데"
+   - GitHub 푸시 상태 확인 요청
+   - 실제로는 커밋만 되고 푸시가 안된 상태였음
+
+36. "Attempted import error: 'createClient' is not exported from '@/lib/supabase/server' (imported as 'createClient'). Failed to compile."
+   - Vercel 배포 오류 발생 알림
+   - Supabase 서버 클라이언트 함수 누락 문제
+
+37. "Service Role Key를 확인해서 .env.local 에 넣어놨어"
+   - Supabase Service Role Key 설정 완료 알림
+
+38. "회원가입시에 Invalid API key 라고 나오는데?"
+   - 회원가입 기능에서 API 키 오류 발생 알림
+   - Vercel 환경 변수 미설정 문제
+
+39. "깃허브에 푸시해줘"
+   - GitHub 푸시 재요청 (환경 변수 설정 후)
+
+40. "@PRD.md @USER_PROMPTS.md 업데이트 해줘"
+   - 최신 상태로 문서 업데이트 요청
+
+---
+
+### 📝 세션별 주요 성과
+
+#### 2025-08-19 오후 세션
+- **Vercel 배포 완전 해결**: Supabase API 키 문제, 빌드 오류 수정
+- **환경 변수 설정**: 로컬 및 Vercel 환경 변수 완전 설정
+- **타입 안정성 확보**: TypeScript 오류 완전 해결
+- **배포 최적화**: Next.js 15 호환성 및 Suspense 경계 처리
+
 ---
 
 *이 파일은 사용자의 모든 프롬프트를 기록하기 위해 생성되었습니다.*

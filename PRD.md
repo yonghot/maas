@@ -241,7 +241,7 @@ successful_matches (
 
 ## 7. 개발 로드맵
 
-### Phase 1: MVP (3주) - 완료
+### Phase 1: MVP (3주) - ✅ 완료
 - [x] 기본 평가 시스템
 - [x] 성별별 차별화된 질문 시스템 (15-20개 질문)
 - [x] 무한 스크롤 테스트 UI
@@ -250,16 +250,18 @@ successful_matches (
 - [x] 회원가입 유도 시스템
 - [x] 간단한 결과 미리보기 (점수/등급 숨김)
 - [x] 상세 결과 페이지 (레이더 차트, 카테고리별 분석)
-- [x] 데이터베이스 스키마 설계
-- [x] 관리자 대시보드
+- [x] 데이터베이스 스키마 설계 및 구현
+- [x] 관리자 대시보드 (로그인 시스템 포함)
 - [x] 반응형 모바일 최적화
+- [x] Supabase 완전 연동
+- [x] 테스트 결과 저장 시스템
+- [x] 회원가입/로그인 시스템 (Supabase Auth)
 
-### Phase 2: 사용자 시스템 (진행중)
-- [ ] 회원가입/로그인 시스템 (Supabase Auth)
-- [ ] 사용자 프로필 관리
-- [ ] 테스트 결과 저장 시스템
+### Phase 2: 매칭 시스템 (대기중)
+- [ ] 사용자 프로필 관리 고도화
 - [ ] 티어 기반 매칭 알고리즘
 - [ ] 카드형 UI 구현
+- [ ] 매칭 상호작용 기능
 
 ### Phase 3: 수익화 (4주)
 - [ ] 프리미엄 기능 구현
@@ -309,23 +311,34 @@ successful_matches (
 - **점수 계산**: 남녀별 차별화된 가중치 알고리즘
 - **등급 시스템**: S-F급 티어, 상세 등급 (S+, S, S- 등)
 - **결과 표시**: 레이더 차트, 카테고리별 분석
-- **관리자 시스템**: 관리자 로그인 (admin/maas2025), 통계 대시보드
-- **데이터베이스**: Supabase 연동, 테스트 결과 저장
+- **회원가입 시스템**: Supabase Auth 완전 연동
+- **관리자 시스템**: 관리자 로그인 (admin/maas2025), 통계 대시보드, PC 최적화
+- **데이터베이스**: Supabase 연동, 테스트 결과 저장 (회원/비회원 분리)
 - **모바일 최적화**: 반응형 디자인, 민트 색상 테마
+- **배포 시스템**: Vercel 배포 완료, 환경 변수 설정
 
 ### 🔧 기술 스택
-- **Frontend**: Next.js 15, TypeScript, Tailwind CSS, shadcn/ui
-- **Backend**: Supabase (PostgreSQL, Auth)
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS v3, shadcn/ui
+- **Backend**: Supabase (PostgreSQL, Auth, RLS)
 - **Charts**: Recharts (레이더 차트)
 - **Animation**: Framer Motion
 - **State**: Zustand
 - **Deploy**: Vercel
+- **Database**: PostgreSQL (registered/anonymous 테이블 분리)
 
 ### 📊 주요 변경사항
 - 기존 "MAAS 테스트" → "나의 결혼 점수는?" 브랜딩 변경
 - 회원가입 전까지 점수/등급 숨김으로 가입 유도 강화
 - 관리자 페이지로 실시간 사용자 데이터 모니터링 가능
 - Mars(♂)/Venus(♀) 심볼로 성별 구분 개선
+- 테스트 안내 문구 완전 제거로 UX 간소화
+- 세션 기반 관리자 인증 시스템 구현
+
+### 🛠 최근 수정사항 (2025-08-19)
+- **Vercel 배포 오류 해결**: Supabase 서버 클라이언트, useSearchParams Suspense 처리
+- **API 키 문제 해결**: 환경 변수 설정 및 배포 환경 최적화
+- **타입 오류 수정**: UserInfo 인터페이스 ageGroup 속성 추가
+- **빌드 최적화**: Next.js 15 호환성 확보
 
 ---
 
