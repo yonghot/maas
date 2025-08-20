@@ -49,21 +49,44 @@
 
 ### 2.2 회원가입 시스템
 
-#### 2.2.1 인스타그램 기반 회원가입
-- **필수 입력 정보** (3개만):
-  1. 인스타그램 아이디
-  2. 비밀번호
-  3. 비밀번호 확인
+#### 2.2.1 소셜 로그인 기반 회원가입
+- **지원 로그인 방법**:
+  - 구글 로그인 (OAuth 2.0)
+  - 카카오톡 로그인 (Kakao OAuth)
+  - 이메일 회원가입 제거됨 ✗
   
-- **인스타그램 아이디 공개 설정**:
-  - 공개: 다른 사용자가 프로필에서 확인 가능
-  - 비공개: 매칭 후에만 상호 공개
+- **회원가입 후 확인 가능한 정보**:
+  ✓ 종합 점수 (10점 만점, 소수점 1자리)
+  ✓ 상위 백분위수 (정규분포 기반)
+  ✓ 카테고리별 상세 점수
+    - 남성: 재력, 센스, 피지컬
+    - 여성: 나이, 외모, 가치관
+  ✓ 맞춤형 개선 방안
+  ✓ 비슷한 점수대 사람들의 특징
+  ✓ 정규분포 차트와 나의 위치
+  
+- **인스타그램 아이디 연동** (신규):
+  - 로그인 전 Instagram ID 입력 필수
+  - 공개/비공개 토글 선택 가능
+  - 공개: 다른 사용자에게 연락 가능
+  - 비공개: 다른 사용자 정보만 열람 가능
+  - 인증 수단이 아닌 연락 수단으로만 사용
 
-#### 2.2.2 회원 데이터 저장
-- 평가 입력 변수
-- 평가 결과 (점수, 등급, 티어)
-- 계정 정보
-- 공개/비공개 설정
+#### 2.2.2 회원 데이터 저장 프로세스
+- **프로필 생성 플로우**:
+  1. 테스트 완료 → localStorage에 결과 저장 (영속성 보장)
+  2. Instagram ID 입력 및 공개/비공개 설정
+  3. 소셜 로그인 (Google/Kakao OAuth)
+  4. OAuth 콜백 → auth.users 테이블에 자동 생성
+  5. `/result/save` 페이지에서 profiles 테이블에 테스트 결과 + Instagram ID 저장
+  6. 결과 페이지로 자동 리다이렉트
+
+- **저장되는 데이터**:
+  - 평가 입력 변수 및 응답 데이터
+  - 평가 결과 (10점 만점 점수, 백분위수, 티어)
+  - 카테고리별 상세 점수
+  - 소셜 계정 정보 (Google/Kakao)
+  - Instagram ID 및 공개/비공개 설정
 
 ### 2.3 매칭 시스템
 
@@ -116,10 +139,15 @@
 7. **매칭 시작** → 비슷한 티어 이성 탐색
 
 ### 3.2 기존 사용자 플로우
-1. **로그인** → 인스타그램 아이디 + 비밀번호
+1. **소셜 로그인** → 구글 또는 카카오 계정으로 로그인
 2. **매칭 피드** → 자동으로 매칭 대상 표시
 3. **탐색** → 스와이프 또는 버튼으로 좋아요/패스
 4. **매칭 성공** → 상호 좋아요 시 연결
+
+### 3.2.1 로그인 시스템
+- **일반 사용자**: 구글/카카오 소셜 로그인만 지원
+- **관리자**: 별도 ID/비밀번호 로그인 (admin/maas2025)
+- **OAuth 콜백**: 자동으로 Instagram ID 정보 저장
 
 ### 3.3 디자인 원칙
 - **모바일 우선**: 세로 모드 최적화
@@ -148,25 +176,22 @@
 
 ### 4.3 데이터베이스 스키마
 ```sql
--- 사용자 테이블
-users (
-  id UUID PRIMARY KEY,
-  instagram_id VARCHAR UNIQUE,
-  instagram_public BOOLEAN DEFAULT false,
-  created_at TIMESTAMP
-)
-
--- 프로필 테이블
+-- 프로필 테이블 (핵심)
 profiles (
-  user_id UUID REFERENCES users(id),
-  gender VARCHAR,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  gender TEXT NOT NULL,
   age INTEGER,
-  region VARCHAR,
-  tier VARCHAR,
+  region TEXT DEFAULT 'seoul',
   total_score INTEGER,
+  percentile INTEGER,
+  tier TEXT,
+  answers JSONB,
   category_scores JSONB,
-  evaluation_data JSONB,
-  last_evaluated_at TIMESTAMP
+  instagram_id TEXT,
+  instagram_public BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 )
 
 -- 매칭 테이블
@@ -255,7 +280,10 @@ successful_matches (
 - [x] 반응형 모바일 최적화
 - [x] Supabase 완전 연동
 - [x] 테스트 결과 저장 시스템
-- [x] 회원가입/로그인 시스템 (Supabase Auth)
+- [x] 소셜 로그인 시스템 (Google/Kakao OAuth)
+- [x] Instagram ID 연동 (공개/비공개 설정)
+- [x] 관리자 평가 기준 관리 페이지
+- [x] 실시간 가중치 조절 시뮬레이터
 
 ### Phase 2: 매칭 시스템 (대기중)
 - [ ] 사용자 프로필 관리 고도화
@@ -304,15 +332,19 @@ successful_matches (
 
 ---
 
-## 10. 현재 구현 현황 (2025-08-19)
+## 10. 현재 구현 현황 (2025-08-20)
 
 ### ✅ 완료된 기능
 - **기본 테스트 시스템**: 성별별 15-20개 질문, 무한 스크롤 UI
 - **점수 계산**: 남녀별 차별화된 가중치 알고리즘
 - **등급 시스템**: S-F급 티어, 상세 등급 (S+, S, S- 등)
-- **결과 표시**: 레이더 차트, 카테고리별 분석
+- **결과 표시**: 레이더 차트, 카테고리별 분석, 정규분포 차트
 - **회원가입 시스템**: Supabase Auth 완전 연동
-- **관리자 시스템**: 관리자 로그인 (admin/maas2025), 통계 대시보드, PC 최적화
+- **관리자 시스템**: 
+  - 관리자 로그인 (admin/maas2025)
+  - 통계 대시보드, PC 최적화
+  - **평가 기준 관리 페이지** (신규)
+  - 실시간 가중치 조절 시뮬레이터
 - **데이터베이스**: Supabase 연동, 테스트 결과 저장 (회원/비회원 분리)
 - **모바일 최적화**: 반응형 디자인, 민트 색상 테마
 - **배포 시스템**: Vercel 배포 완료, 환경 변수 설정
@@ -320,7 +352,7 @@ successful_matches (
 ### 🔧 기술 스택
 - **Frontend**: Next.js 15, TypeScript, Tailwind CSS v3, shadcn/ui
 - **Backend**: Supabase (PostgreSQL, Auth, RLS)
-- **Charts**: Recharts (레이더 차트)
+- **Charts**: Recharts (레이더 차트, 정규분포 차트)
 - **Animation**: Framer Motion
 - **State**: Zustand
 - **Deploy**: Vercel
@@ -334,7 +366,49 @@ successful_matches (
 - 테스트 안내 문구 완전 제거로 UX 간소화
 - 세션 기반 관리자 인증 시스템 구현
 
-### 🛠 최근 수정사항 (2025-08-19)
+### 🛠 최근 수정사항 (2025-08-21)
+- **데이터베이스 문제 해결**:
+  - localStorage 사용으로 OAuth 후 데이터 유실 문제 해결
+  - region 컬럼 NULL 허용 및 기본값 'seoul' 설정
+  - 외래키를 auth.users로 변경 (public.users 테이블 삭제)
+  - RLS 정책 성능 최적화
+  - profiles 테이블에 Instagram 컬럼 추가
+
+- **SQL 자동 실행 도구 구축**:
+  - PowerShell 스크립트 (run-sql.ps1) - SQL 클립보드 복사 + 브라우저 자동 열기
+  - Node.js 스크립트 (fix-db-now.js) - 데이터베이스 상태 확인
+  - Supabase Migration 파일 생성
+  - (주의: Supabase는 DDL 명령을 API로 직접 실행 불가)
+
+- **MCP 서버 설정**:
+  - Supabase MCP 서버 설치 (supabase-mcp, @joshuarileydev/supabase-mcp-server)
+  - .mcp.json 파일 통합 (프로젝트 루트에 통합)
+  - MCP 서버 환경 변수 설정
+
+### 🛠 이전 수정사항 (2025-08-20 오후)
+- **Instagram ID 연동 시스템**:
+  - 이메일 회원가입 완전 제거
+  - Instagram ID 입력 필드 추가 (@기호 자동 표시)
+  - 공개/비공개 토글 스위치 구현
+  - 소셜 로그인과 Instagram ID 통합
+  - OAuth 콜백에서 Instagram ID 자동 저장
+
+- **OAuth 설정 시스템**:
+  - Google/Kakao OAuth 설정 가이드 완성
+  - OAuth 설정 관리자 페이지 구현 (/admin/oauth)
+  - 단계별 설정 가이드 및 Redirect URI 복사 기능
+  - 설정 상태 추적 및 테스트 기능
+
+### 🛠 이전 수정사항 (2025-08-20 오전)
+- **10점 만점 시스템**: 100점 → 10점 (소수점 1자리) 변경
+- **백분위수 시스템**: 정규분포 기반 상위 X% 표시 및 시각화
+- **소셜 로그인**: 구글, 카카오톡 로그인 구현
+- **등급 제거**: 등급 표시 제거, 백분위수로 대체
+- **비슷한 점수대 특징**: 결과 페이지에 비슷한 점수대 사람들의 특징 추가
+- **카테고리별 점수 수정**: 성별별 실제 카테고리 구조 반영
+- **UI 개선**: "나중에 하기" 옵션 제거, 회원가입 유도 강화
+
+### 🛠 이전 수정사항 (2025-08-19)
 - **Vercel 배포 오류 해결**: Supabase 서버 클라이언트, useSearchParams Suspense 처리
 - **API 키 문제 해결**: 환경 변수 설정 및 배포 환경 최적화
 - **타입 오류 수정**: UserInfo 인터페이스 ageGroup 속성 추가
@@ -342,6 +416,135 @@ successful_matches (
 
 ---
 
+## 11. 프로젝트 아키텍처 및 구현 세부사항
+
+### 11.1 디렉토리 구조
+```
+maas-app/
+├── app/              # Next.js 15 App Router
+│   ├── admin/        # 관리자 대시보드 (admin/maas2025 로그인)
+│   │   ├── oauth/    # OAuth 설정 가이드 페이지
+│   │   └── scoring/  # 평가 기준 관리 페이지
+│   ├── api/          # API Routes (payment, profile, subscription, test-results, scoring-weights)
+│   ├── auth/         # Supabase Auth 콜백
+│   ├── login/        # 로그인 페이지 (소셜 로그인 지원)
+│   ├── signup-result/ # 회원가입 유도 페이지 (Instagram ID 입력)
+│   ├── test/         # 테스트 실행 페이지
+│   └── result/       # 결과 페이지 (simple, save, [id])
+├── components/       # React 컴포넌트
+│   ├── auth/         # 인증 관련 컴포넌트
+│   ├── result/       # 결과 표시 컴포넌트 (차트, 점수, 정규분포)
+│   ├── test/         # 테스트 진행 컴포넌트
+│   └── ui/           # shadcn/ui 컴포넌트
+├── lib/              # 핵심 비즈니스 로직
+│   ├── scoring/      # 점수 계산 시스템
+│   ├── questions/    # 성별별 질문 데이터
+│   ├── supabase/     # Supabase 클라이언트
+│   └── types/        # TypeScript 타입 정의
+├── store/            # Zustand 상태 관리
+├── contexts/         # React Context (AuthContext)
+└── scripts/          # 설정 및 마이그레이션 스크립트
+```
+
+### 11.2 핵심 비즈니스 로직 구현 세부사항
+
+#### 점수 계산 시스템 (`lib/scoring/calculator.ts`)
+- **ScoringCalculator 클래스**: 성별별 점수 계산 메인 로직
+- **남성 평가 (CAI-M)**: 재력(0.6) + 센스(0.3) + 피지컬(0.1) 가중치
+- **여성 평가 (CAI-F)**: 평가자 연령별 가중치 차별화
+  - 35세 미만: 나이(0.2) + 외모(0.4) + 가치관(0.4)
+  - 35세 이상: 나이(0.4) + 외모(0.2) + 가치관(0.4)
+- **등급 시스템**: S(95+), A(85+), B(70+), C(55+), D(40+), F(40-)
+
+#### 티어 시스템 (`lib/scoring/tier-system.ts`)
+- **정규분포 기반**: 평균 50, 표준편차 15
+- **LOL 티어 체계**: 10단계 (Challenger ~ Iron)
+- **백분위수 계산**: Z-score 기반 CDF 계산
+
+#### 상태 관리 (`store/test-store.ts`)
+- **Zustand + persist**: 브라우저 새로고침 시에도 상태 유지
+- **관리 데이터**: userInfo, userLead, answers, 진행상태, 결과
+- **localStorage 키**: 'maas-test-storage'
+
+### 11.3 데이터베이스 구조 세부사항 (Supabase)
+- **profiles**: 소셜 로그인 사용자 프로필 및 테스트 결과
+- **users**: 사용자 계정 정보 (Instagram ID, 공개/비공개 설정)
+- **test_results**: 테스트 결과 (현재 미사용)
+- **anonymous_test_results**: 비회원 테스트 결과 (현재 미사용)
+- **subscriptions**: 구독 정보 (준비중)
+- **RLS(Row Level Security)**: 모든 테이블에 적용
+
+### 11.4 테마 및 스타일 가이드
+- **메인 컬러**: Teal/Mint 계열 (teal-400, teal-500, teal-600)
+- **차트 컬러**: chart-1 ~ chart-5 CSS 변수
+- **애니메이션**: Framer Motion 활용
+- **컴포넌트**: shadcn/ui new-york 스타일
+- **반응형**: 모바일 우선 디자인
+
+### 11.5 개발 명령어
+```bash
+# 프로젝트는 maas-app 디렉토리에 위치
+cd maas-app
+
+# 개발 서버 실행
+npm run dev         # http://localhost:3000
+
+# 빌드 및 품질 검사
+npm run build       # 프로덕션 빌드
+npm run start       # 프로덕션 서버 실행
+npm run lint        # ESLint 실행
+npx tsc --noEmit   # TypeScript 타입 체크
+
+# Supabase 설정
+npm run setup       # Supabase 환경 설정 스크립트 (scripts/setup-supabase.js)
+npm run check-env   # 환경 변수 확인
+
+# 빌드 문제 해결 시
+rm -rf .next node_modules package-lock.json
+npm install
+npm run build
+```
+
+### 11.6 환경 변수 설정
+```bash
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=https://hvpyqchgimnzaotwztuy.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Vercel 환경 변수 (대시보드에서 설정)
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
+```
+
+### 11.7 배포 설정
+- **Production URL**: https://maas-eight.vercel.app
+- **GitHub**: https://github.com/yonghot/maas
+- **Build Command**: `npm run build`
+- **Output Directory**: `.next`
+- **Framework**: Next.js (자동 감지)
+- **Root Directory**: maas-app (Vercel 설정)
+
+### 11.8 알려진 이슈 및 해결책
+
+#### Tailwind CSS v3 호환성
+```bash
+# Next.js 15가 v4를 설치하는 경우 v3로 다운그레이드
+npm install -D tailwindcss@3.4.17
+```
+
+#### PostCSS 설정
+- `postcss.config.mjs` 사용 (`.js` 아님)
+
+#### TypeScript 경로 별칭
+- `@/*` → `./` 매핑 (tsconfig.json)
+
+#### Vercel 배포 이슈
+- useSearchParams는 Suspense boundary 필요
+- 환경 변수는 Vercel 대시보드에서 설정
+- Root Directory는 maas-app로 설정
+
+---
+
 *이 문서는 MAAS 프로젝트의 제품 요구사항 문서입니다.*
-*최종 업데이트: 2025-08-19*
-*버전: 2.1*
+*최종 업데이트: 2025-08-21*
+*버전: 2.5*

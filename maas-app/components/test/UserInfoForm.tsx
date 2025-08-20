@@ -39,10 +39,7 @@ export function UserInfoForm({ onSubmit }: UserInfoFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="text-center">
-          <h3 className="text-lg font-semibold text-teal-800">
-            성별을 선택해주세요
-          </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-gray-600">
             성별에 따라 다른 질문이 주어집니다.
           </p>
         </div>

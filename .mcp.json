@@ -9,6 +9,24 @@
       "command": "npx",
       "args": ["shadcn@latest"],
       "env": {}
+    },
+    "supabase-local": {
+      "type": "stdio",
+      "command": "npx supabase-mcp",
+      "args": [],
+      "env": {
+        "SUPABASE_URL": "https://hvpyqchgimnzaotwztuy.supabase.co",
+        "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cHlxY2hnaW1uemFvdHd6dHV5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTQ1Njg4OCwiZXhwIjoyMDcxMDMyODg4fQ.HEB3G6EbPPUIKcrjinU4XVsdNv6-C8PufCCc5ujGodM"
+      }
+    },
+    "supabase-josh": {
+      "type": "stdio",
+      "command": "@joshuarileydev/supabase-mcp-server",
+      "args": [],
+      "env": {
+        "SUPABASE_URL": "https://hvpyqchgimnzaotwztuy.supabase.co",
+        "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cHlxY2hnaW1uemFvdHd6dHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NTY4ODgsImV4cCI6MjA3MTAzMjg4OH0.8prtIUesStj4xNabIKY3yVlrbvWseAYIUM11rk7KZX4"
+      }
     }
   }
 }

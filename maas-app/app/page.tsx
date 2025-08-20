@@ -69,23 +69,28 @@ export default function HomePage() {
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent mb-3">
                 나의 결혼 점수는?
               </h1>
-              <div className="flex items-center justify-center gap-2 text-lg sm:text-xl md:text-2xl text-teal-700 mb-4">
-                <Sparkles className="text-teal-500 w-5 h-5" />
-                <span className="font-medium">Marriage Attractiveness Assessment</span>
-                <Sparkles className="text-teal-500 w-5 h-5" />
-              </div>
             </motion.div>
 
             {/* 서브 텍스트 - 모바일 가독성 개선 */}
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-base sm:text-lg text-teal-600/80 mb-8 px-4 leading-relaxed"
+              className="mb-8 px-4"
             >
-              AI가 분석하는 객관적인 매력 지수<br />
-              <span className="font-semibold text-teal-700">5분</span>만에 당신의 매력을 평가받아보세요
-            </motion.p>
+              <p className="text-base sm:text-lg text-teal-700 font-semibold mb-4">
+                우리 모두가 알고있지만 감히 대놓고 말하지는 못하는 불편한 진실.
+              </p>
+              <p className="text-sm sm:text-base text-teal-600/90 leading-relaxed mb-4">
+                우리는 결국 서로 비슷한 점수의 사람들끼리 만나게 됩니다.<br />
+                당신이 배우자로서 가지는 이성적 매력 수준을 진단하고,<br />
+                나와 비슷한 점수의 사람들은 어떠한 조건을 가지고 있는지 알아보세요!
+              </p>
+              <p className="text-base sm:text-lg text-teal-600/80">
+                AI가 분석하는 객관적인 매력 지수<br />
+                <span className="font-semibold text-teal-700">5분</span>만에 당신의 매력을 평가받아보세요
+              </p>
+            </motion.div>
 
             {/* CTA 버튼 - 모바일 터치 최적화 */}
             <motion.div

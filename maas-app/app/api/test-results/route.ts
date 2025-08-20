@@ -111,19 +111,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // 모든 테스트 결과 조회
-    const { data, error } = await supabase
-      .from('all_test_results')
+    // profiles 테이블에서 직접 데이터 조회 (users 테이블 JOIN 제거)
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
       .select('*')
       .order('created_at', { ascending: false })
       .limit(100);
     
-    if (error) {
-      console.error('Error fetching test results:', error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (profilesError) {
+      console.error('Error fetching profiles:', profilesError);
     }
     
-    return NextResponse.json({ data });
+    // 프로필 데이터를 관리자 페이지 형식으로 변환
+    const formattedData = (profiles || []).map(profile => ({
+      id: profile.id,
+      user_type: 'registered' as const,
+      user_identifier: profile.instagram_id || profile.user_id,
+      gender: profile.gender,
+      age: profile.age || 0,
+      region: '',
+      nickname: profile.instagram_id ? `@${profile.instagram_id}` : '',
+      total_score: profile.total_score,
+      tier: profile.tier,
+      grade: '',
+      instagram_public: profile.instagram_public !== false, // 기본값 true
+      created_at: profile.created_at,
+      category_scores: profile.category_scores,
+      percentile: profile.percentile
+    }));
+    
+    return NextResponse.json({ data: formattedData });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(

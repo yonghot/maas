@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, User, Lock, Shield } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -15,8 +16,39 @@ function LoginContent() {
   const redirect = searchParams.get('redirect') || '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSocialLogin = async (provider: 'google' | 'kakao') => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+
+      if (error) throw error;
+    } catch (err: any) {
+      console.error('소셜 로그인 오류:', err);
+      let errorMessage = '소셜 로그인 중 오류가 발생했습니다.';
+      
+      if (err.message?.includes('provider is not enabled')) {
+        errorMessage = `${provider === 'google' ? 'Google' : 'Kakao'} 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.`;
+      } else if (err.message?.includes('validation_failed')) {
+        errorMessage = '소셜 로그인 설정을 확인해주세요.';
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,10 +86,27 @@ function LoginContent() {
           password,
         });
 
+        // 자동 로그인 설정 (세션 지속 시간 설정)
+        if (rememberMe && data.session) {
+          // 30일간 세션 유지
+          localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+        }
+
         if (authError) throw authError;
 
-        // 로그인 성공 시 리다이렉트
-        router.push(redirect);
+        // 로그인 성공 시 프로필 확인
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', data.user?.id)
+          .single();
+        
+        // 프로필이 있으면 결과 페이지로, 없으면 테스트 페이지로
+        if (profile) {
+          router.push('/result');
+        } else {
+          router.push('/test');
+        }
       }
     } catch (err: any) {
       setError(err.message || '로그인 중 오류가 발생했습니다.');
@@ -90,7 +139,56 @@ function LoginContent() {
             )}
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
+            {!isAdminLogin && (
+              <div className="space-y-4 mb-6">
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600">
+                    소셜 계정으로 로그인해주세요
+                  </p>
+                </div>
+                
+                {/* 소셜 로그인 버튼 */}
+                <div className="space-y-3">
+                  <Button
+                    onClick={() => handleSocialLogin('google')}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center"
+                    type="button"
+                  >
+                    <svg className="mr-2" width="20" height="20" viewBox="0 0 20 20">
+                      <g fill="none" fillRule="evenodd">
+                        <path d="M19.6 10.23c0-.69-.06-1.35-.17-1.99H10v3.74h5.4c-.23 1.25-.95 2.31-2.02 3.02v2.51h3.27c1.91-1.76 3.01-4.36 3.01-7.28z" fill="#4285F4"/>
+                        <path d="M10 20c2.73 0 5.02-.91 6.69-2.45l-3.27-2.51c-.91.61-2.07.97-3.42.97-2.63 0-4.86-1.78-5.66-4.17H.98v2.59C2.65 17.75 6.1 20 10 20z" fill="#34A853"/>
+                        <path d="M4.34 11.84A5.94 5.94 0 0 1 4.03 10c0-.65.11-1.29.31-1.88V5.53H.98A9.97 9.97 0 0 0 0 10c0 1.61.39 3.14.98 4.47l3.36-2.63z" fill="#FBBC04"/>
+                        <path d="M10 3.96c1.48 0 2.81.51 3.85 1.51l2.89-2.89C15.02 1.01 12.73 0 10 0 6.1 0 2.65 2.25.98 5.53l3.36 2.59C5.14 5.74 7.37 3.96 10 3.96z" fill="#EA4335"/>
+                      </g>
+                    </svg>
+                    Google로 로그인
+                  </Button>
+
+                  <Button
+                    onClick={() => handleSocialLogin('kakao')}
+                    disabled={isLoading}
+                    className="w-full h-12 bg-[#FEE500] hover:bg-[#FDD835] text-[#000000D9] font-medium flex items-center justify-center"
+                    type="button"
+                  >
+                    <svg className="mr-2" width="20" height="20" viewBox="0 0 20 20">
+                      <path fill="#000000" d="M10 0C4.48 0 0 3.62 0 8.08c0 2.89 1.88 5.42 4.7 6.84-.2.72-.74 2.64-.85 3.05-.13.51.19.5.4.36.17-.11 2.67-1.83 3.75-2.57.65.09 1.31.14 2 .14 5.52 0 10-3.62 10-8.08S15.52 0 10 0"/>
+                    </svg>
+                    카카오로 로그인
+                  </Button>
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded">
+                    {error}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {isAdminLogin && (
+              <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                   {isAdminLogin ? '아이디' : '이메일'}
@@ -127,6 +225,21 @@ function LoginContent() {
                 </div>
               </div>
 
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="remember" 
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                />
+                <Label 
+                  htmlFor="remember" 
+                  className="text-sm text-gray-700 cursor-pointer"
+                >
+                  자동 로그인
+                </Label>
+              </div>
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded">
                   {error}
@@ -147,17 +260,18 @@ function LoginContent() {
                   '로그인'
                 )}
               </Button>
-            </form>
+              </form>
+            )}
 
             {!isAdminLogin && (
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-600">
                   아직 계정이 없으신가요?{' '}
                   <button
-                    onClick={() => router.push('/signup')}
+                    onClick={() => router.push('/')}
                     className="text-teal-600 hover:underline font-medium"
                   >
-                    회원가입
+                    테스트 시작하기
                   </button>
                 </p>
               </div>

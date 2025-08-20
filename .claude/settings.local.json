@@ -46,7 +46,11 @@
       "Bash(npm ci:*)",
       "Bash(git reset:*)",
       "Bash(git ls-tree:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(npx supabase db push:*)",
+      "Bash(npx supabase:*)",
+      "Bash(npx tsc:*)",
+      "Bash(supabase-mcp:*)"
     ],
     "deny": []
   },

@@ -11,7 +11,7 @@ import { Question, UserInfo } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ScoringCalculator } from '@/lib/scoring/calculator';
+import { ScoringCalculator, ScoringWeights, DEFAULT_WEIGHTS } from '@/lib/scoring/calculator';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -33,7 +33,29 @@ export default function TestPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [scoringWeights, setScoringWeights] = useState<ScoringWeights | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  // 가중치 불러오기
+  useEffect(() => {
+    const loadWeights = async () => {
+      try {
+        const response = await fetch('/api/scoring-weights');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.weights) {
+            setScoringWeights(data.weights);
+          }
+        }
+      } catch (error) {
+        console.error('가중치 로드 실패:', error);
+        // 실패 시 기본 가중치 사용
+        setScoringWeights(DEFAULT_WEIGHTS);
+      }
+    };
+    
+    loadWeights();
+  }, []);
 
   // 성별에 따른 질문 목록 설정
   useEffect(() => {
@@ -113,7 +135,10 @@ export default function TestPage() {
     setError(null);
     
     try {
-      const calculator = new ScoringCalculator();
+      // 가중치가 로드되지 않았으면 기본 가중치 사용
+      const weights = scoringWeights || DEFAULT_WEIGHTS;
+      const calculator = new ScoringCalculator(weights);
+      
       const result = userInfo.gender === 'male'
         ? calculator.calculateMaleScore(answers, userInfo)
         : calculator.calculateFemaleScore(answers, userInfo);
@@ -140,16 +165,6 @@ export default function TestPage() {
               <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
                 나의 결혼 점수는?
               </CardTitle>
-              <div className="mt-3 px-4">
-                <p className="text-sm sm:text-base text-gray-700 font-medium mb-2">
-                  우리 모두가 알고있지만 감히 대놓고 말하지는 못하는 불편한 진실.
-                </p>
-                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                  우리는 결국 서로 비슷한 점수의 사람들끼리 만나게 됩니다.<br />
-                  당신이 배우자로서 가지는 이성적 매력 수준을 진단하고,<br />
-                  나와 비슷한 점수의 사람들은 어떠한 조건을 가지고 있는지 알아보세요!
-                </p>
-              </div>
             </CardHeader>
             <CardContent>
               <UserInfoForm onSubmit={handleUserInfoSubmit} />

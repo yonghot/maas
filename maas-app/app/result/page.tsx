@@ -5,9 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useTestStore } from '@/store/test-store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, Home, RefreshCw, TrendingUp, Target, BarChart3, Users, Heart } from 'lucide-react';
+import { Trophy, Home, RefreshCw, TrendingUp, Target, BarChart3, Users, Heart, Lightbulb, UserCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
+import NormalDistributionChart from '@/components/result/NormalDistributionChart';
 
 export default function ResultPage() {
   const router = useRouter();
@@ -50,61 +51,137 @@ export default function ResultPage() {
     return '많은 개선이 필요합니다. ⚡';
   };
 
-  // 레이더 차트 데이터 생성
-  const radarData = [
-    { category: '외모/건강', score: result.categoryScores['외모/건강'] || 0 },
-    { category: '경제력', score: result.categoryScores['경제력'] || 0 },
-    { category: '성격/인성', score: result.categoryScores['성격/인성'] || 0 },
-    { category: '생활능력', score: result.categoryScores['생활능력'] || 0 },
-    { category: '관계능력', score: result.categoryScores['관계능력'] || 0 },
-  ];
+  // 레이더 차트 데이터 생성 (성별에 따라 다른 카테고리)
+  const radarData = userInfo?.gender === 'male' 
+    ? [
+        { category: '재력', score: result.categoryScores?.wealth || 0 },
+        { category: '센스', score: result.categoryScores?.sense || 0 },
+        { category: '피지컬', score: result.categoryScores?.physical || 0 },
+      ]
+    : [
+        { category: '나이', score: result.categoryScores?.age || 0 },
+        { category: '외모', score: result.categoryScores?.appearance || 0 },
+        { category: '가치관', score: result.categoryScores?.values || 0 },
+      ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 p-4 safe-area-padding">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* 정규분포 차트 */}
+        <NormalDistributionChart 
+          score={result.totalScore} 
+          gender={userInfo?.gender || 'male'}
+          animate={true}
+        />
+
+        {/* 결과 요약 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-8"
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="text-center"
         >
-          <div className="flex justify-center mb-4">
-            <motion.div
-              initial={{ rotate: -180, scale: 0 }}
-              animate={{ rotate: 0, scale: 1 }}
-              transition={{ duration: 0.7, type: "spring" }}
-            >
-              <Trophy className="w-16 h-16 text-yellow-500" />
-            </motion.div>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl font-bold text-teal-800 mb-4">
-            결혼매력도 분석 결과
+          <h1 className="text-2xl sm:text-3xl font-bold text-teal-800 mb-4">
+            상세 분석 결과
           </h1>
           
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-4"
-          >
-            <div className="text-6xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
-              {result.totalScore.toFixed(1)}점
-            </div>
+          <p className="text-lg text-gray-700 font-medium max-w-2xl mx-auto">
+            {getGradeMessage(result.grade)}
+          </p>
+        </motion.div>
 
-            <div className="flex justify-center gap-4">
-              <span className={`px-6 py-3 rounded-full text-lg font-bold bg-gradient-to-r ${getTierColor(result.tier)} text-white shadow-lg`}>
-                {result.tier}급
-              </span>
-              <span className="px-6 py-3 bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 rounded-full text-lg font-bold shadow-lg">
-                {result.grade}
-              </span>
-            </div>
-
-            <p className="text-lg text-gray-700 font-medium max-w-2xl mx-auto">
-              {getGradeMessage(result.grade)}
-            </p>
-          </motion.div>
+        {/* 비슷한 점수대 사람들의 특징 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8"
+        >
+          <Card className="shadow-xl border-0 backdrop-blur-lg bg-white/95">
+            <CardHeader>
+              <CardTitle className="text-xl text-teal-800 flex items-center">
+                <UserCheck className="mr-2 h-5 w-5" />
+                비슷한 점수대 사람들의 특징
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {result.totalScore >= 8.5 ? (
+                  <>
+                    <div className="bg-yellow-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-yellow-800 mb-2">🏆 최상위권 특징</h4>
+                      <ul className="text-sm text-yellow-700 space-y-1">
+                        <li>• 사회적 성공과 안정적인 생활</li>
+                        <li>• 높은 자기관리 수준</li>
+                        <li>• 균형 잡힌 가치관</li>
+                      </ul>
+                    </div>
+                    <div className="bg-purple-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-purple-800 mb-2">👑 매칭 성공률</h4>
+                      <p className="text-sm text-purple-700">
+                        상위 3% 이내의 선택권을 가지며, 
+                        원하는 조건의 파트너를 만날 확률이 높습니다.
+                      </p>
+                    </div>
+                  </>
+                ) : result.totalScore >= 7.0 ? (
+                  <>
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-800 mb-2">💪 상위권 특징</h4>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>• 안정적인 직업과 수입</li>
+                        <li>• 건강한 생활 습관</li>
+                        <li>• 긍정적인 대인관계</li>
+                      </ul>
+                    </div>
+                    <div className="bg-cyan-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-cyan-800 mb-2">🎯 매칭 기회</h4>
+                      <p className="text-sm text-cyan-700">
+                        상위 15% 이내로 좋은 선택권을 가지며,
+                        적극적인 활동으로 좋은 만남을 기대할 수 있습니다.
+                      </p>
+                    </div>
+                  </>
+                ) : result.totalScore >= 5.5 ? (
+                  <>
+                    <div className="bg-green-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-green-800 mb-2">🌱 평균권 특징</h4>
+                      <ul className="text-sm text-green-700 space-y-1">
+                        <li>• 안정적인 가치관</li>
+                        <li>• 현실적인 기대치</li>
+                        <li>• 꾸준한 자기개발 의지</li>
+                      </ul>
+                    </div>
+                    <div className="bg-emerald-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-emerald-800 mb-2">🎉 개선 가능성</h4>
+                      <p className="text-sm text-emerald-700">
+                        평균 수준으로 노력하면 충분히 개선 가능하며,
+                        다양한 만남의 기회가 있습니다.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-orange-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-orange-800 mb-2">🔥 성장 필요 구간</h4>
+                      <ul className="text-sm text-orange-700 space-y-1">
+                        <li>• 적극적인 자기개발 필요</li>
+                        <li>• 기본기 강화 필요</li>
+                        <li>• 새로운 도전 필요</li>
+                      </ul>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-4">
+                      <h4 className="font-semibold text-red-800 mb-2">🚀 발전 기회</h4>
+                      <p className="text-sm text-red-700">
+                        현재는 하위권이지만 충분한 발전 가능성이 있으며,
+                        체계적인 노력으로 극복 가능합니다.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -130,6 +207,7 @@ export default function ResultPage() {
                       angle={90} 
                       domain={[0, 100]} 
                       tick={{ fontSize: 10, fill: '#6B7280' }}
+                      axisLine={false}
                     />
                     <Radar
                       name="점수"
@@ -154,20 +232,41 @@ export default function ResultPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {radarData.map((item, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium text-gray-700">{item.category}</span>
-                    <span className="text-sm font-bold text-teal-600">{item.score.toFixed(1)}점</span>
+              {radarData.map((item, index) => {
+                // 각 카테고리의 최대값으로 백분율 계산
+                const maxScore = 100; // 카테고리별 최대 점수
+                const percentage = (item.score / maxScore) * 100;
+                
+                return (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium text-gray-700">{item.category}</span>
+                      <span className="text-sm font-bold text-teal-600">{item.score.toFixed(0)}/100</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-teal-400 to-teal-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-teal-400 to-teal-600 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${item.score}%` }}
-                    />
-                  </div>
+                );
+              })}
+              
+              {/* 개선 방안 표시 */}
+              {result.advice && result.advice.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">💡 개선 방안</h4>
+                  <ul className="space-y-2">
+                    {result.advice.map((advice, index) => (
+                      <li key={index} className="text-xs text-gray-600 flex items-start">
+                        <span className="mr-2">•</span>
+                        <span>{advice}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
+              )}
             </CardContent>
           </Card>
         </div>

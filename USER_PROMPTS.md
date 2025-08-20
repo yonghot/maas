@@ -151,9 +151,114 @@
 40. "@PRD.md @USER_PROMPTS.md 업데이트 해줘"
    - 최신 상태로 문서 업데이트 요청
 
+### 2025-08-20
+
+41. "로컬 서버 실행해줘"
+   - Next.js 개발 서버 실행 요청 (포트 3001 사용)
+
+42. "관리자 페이지에 또 하나의 페이지를 만들어줘. 남성과 여성의 평가기준을 모두 정리해서 보여주고, 가중치를 조절해서 실시간으로 쉽게 평가 결과를 조정할 수 있도록해줘"
+   - 관리자 평가 기준 관리 페이지 생성 요청
+   - 실시간 가중치 조절 기능 구현
+   - 점수 시뮬레이터 추가
+
+43. "지금까지 @PRD.md @USER_PROMPTS.md 업데이트해줘."
+   - PRD.md와 USER_PROMPTS.md 최신화 요청
+
+44. "구글 소셜 로그인 클릭하면 {"code":400,"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"} 이런 오류가 뜨네. 소셜로그인 기능 구현 완성시키자"
+   - Google OAuth 설정 오류 해결 요청
+   - 소셜 로그인 설정 완성 요구
+
+45. "1. OAuth 설정 상태 확인 - 브라우저에서 http://localhost:3003/admin/oauth 접속 - 현재 OAuth 설정 상태를 확인할 수 있습니다 {"code":400,"error_code":"validation_failed","msg":"Unsupported provider: provider is not enabled"} 이렇게 뜨는데?"
+   - OAuth 설정 관리자 페이지에서도 동일한 오류 발생 알림
+   - OAuth 설정 상태 확인 방식 개선 필요
+
+46. "@PRD.md @USER_PROMPTS.md 업데이트해줘"
+   - 최신 Instagram ID 연동 및 OAuth 설정 시스템 반영 요청
+
+47. "회원가입시에 이메일로 가입하는 기능을 제거하고, 인스타그램 아이디를 입력하게 해줘. 아이디로 가입을 하는게 아니라 아이디만 입력하는거야. 그리고 인스타그램 아이디를 공개할지 말지를 선택하게 해줘. 공개가 되면 다른 사용자의 화면에 본인 정보가 떴을때, 연락을 받을 수 있고, 비공개를 하면 연락을 받지는 않고 다른 사람들의 정보만 볼 수 있게되는거지. --think-hard"
+   - 이메일 회원가입 완전 제거 요청
+   - Instagram ID 입력 필드 추가 (연락 수단으로만 사용)
+   - 공개/비공개 토글 기능 구현
+   - 공개 시: 다른 사용자가 연락 가능
+   - 비공개 시: 다른 사용자 정보만 열람 가능
+
+48. "카카오 OAuth 설정 할때는 Client Secret Code 필요 없어?"
+   - Kakao OAuth Client Secret 필요성 질문
+
+49. "supabase에서 설정하려니까 카카오도 Client Secret Code is required 라고 뜨는데?"
+   - Supabase에서 Kakao OAuth 설정 시 Client Secret 필요 알림
+   - Kakao Client Secret 생성 방법 안내 필요
+
+50. "소셜 로그인으로 가입하고 나면 로그인 페이지에도 소셜로 로그인 되게 해야되지 않나? --think-hard"
+   - 로그인 페이지와 회원가입 페이지의 소셜 로그인 통일성 요청
+   - 사용자가 소셜 로그인으로 가입했으면 로그인도 소셜로 가능해야 함
+   - 관리자 로그인과 일반 사용자 로그인 분리 필요
+
+51. "@PRD.md @USER_PROMPTS.md 업데이트해줘"
+   - 소셜 로그인 통합 시스템 완성 후 문서 최신화 요청
+
+52. "소셜 로그인으로 회원가입 했을때, 관리자페이지에서 가입한 정보가 없고, 가입 이후에 점수 결과를 보여주는 페이지로 가야되는데, 다시 test 페이지의 성별 선택하는 페이지로 돌아와."
+   - 소셜 로그인 후 데이터 저장 문제 확인
+   - 회원가입 후 리다이렉트 문제 해결
+   - 관리자 페이지에서 가입 정보 표시 수정
+
+53. "좋아. md 파일들 업데이트 해줘"
+   - PRD.md, USER_PROMPTS.md, CLAUDE.md 최신화 요청
+
 ---
 
 ### 📝 세션별 주요 성과
+
+#### 2025-08-20 오후 세션 (이어진 세션)
+- **Instagram ID 연동 시스템 완성**:
+  - 이메일 회원가입 완전 제거
+  - Instagram ID 입력 필드 구현 (@기호, 유효성 검사)
+  - 공개/비공개 토글 스위치 (shadcn/ui Switch 컴포넌트)
+  - OAuth 콜백에서 Instagram ID 저장 처리
+  - users 테이블 구조 활용한 데이터 저장
+
+- **OAuth 설정 시스템 구축**:
+  - /admin/oauth 관리자 페이지 구현
+  - Google Cloud Console & Kakao Developers 설정 가이드
+  - Redirect URI 복사 기능 및 단계별 설정 안내
+  - Supabase Auth Providers 설정 링크 통합
+  - OAuth 설정 상태 추적 및 테스트 기능
+
+- **소셜 로그인 통일성 완성**:
+  - 로그인 페이지에 소셜 로그인 버튼 추가
+  - 관리자 로그인과 일반 사용자 로그인 완전 분리
+  - 관리자: ID/비밀번호 (admin/maas2025)
+  - 일반 사용자: 구글/카카오 소셜 로그인만 사용
+  - OAuth 콜백 처리 개선 및 리다이렉트 처리
+
+- **Kakao OAuth Client Secret 처리**:
+  - Kakao Developer Console에서 Client Secret 생성 방법 안내 추가
+  - Supabase Kakao OAuth 설정에 Client Secret 필요함을 명확히 함
+  - 설정 가이드 문서에 Kakao Client Secret 생성 단계 포함
+
+- **회원가입 후 데이터 저장 플로우 개선**:
+  - 테스트 결과를 sessionStorage에 임시 저장
+  - OAuth 콜백 후 `/result/save` 페이지에서 프로필 생성
+  - profiles 테이블에 테스트 결과 및 카테고리별 점수 저장
+  - 결과 페이지로 자동 리다이렉트 구현
+
+- **관리자 페이지 개선**:
+  - profiles 테이블에서 소셜 로그인 사용자 데이터 조회
+  - Instagram ID 및 공개/비공개 상태 표시
+  - 카테고리별 점수 상세 표시
+  - 테이블 UI 간소화 및 최적화
+
+- **에러 처리 개선**:
+  - 소셜 로그인 오류 메시지 개선
+  - "provider is not enabled" 오류 대응
+  - OAuth 설정 미완료 상황 안내 강화
+  - 구체적인 해결 방법 제시
+
+#### 2025-08-20 오전 세션  
+- **관리자 기능 강화**: 평가 기준 관리 페이지 추가
+- **실시간 시뮬레이션**: 가중치 조절 및 점수 계산 시뮬레이터 구현
+- **UI 개선**: 레이더 차트로 점수 분포 시각화
+- **문서 개선**: CLAUDE.md 대폭 개선, 프로젝트 아키텍처 명확화
 
 #### 2025-08-19 오후 세션
 - **Vercel 배포 완전 해결**: Supabase API 키 문제, 빌드 오류 수정

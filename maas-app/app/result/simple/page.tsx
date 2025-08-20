@@ -6,100 +6,63 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trophy, Home, RefreshCw, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import NormalDistributionChart from '@/components/result/NormalDistributionChart';
 
 function SimpleResultContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [score, setScore] = useState<number>(0);
-  const [tier, setTier] = useState<string>('');
-  const [grade, setGrade] = useState<string>('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
 
   useEffect(() => {
     const scoreParam = searchParams.get('score');
-    const tierParam = searchParams.get('tier');
-    const gradeParam = searchParams.get('grade');
+    const genderParam = searchParams.get('gender');
 
-    if (scoreParam && tierParam && gradeParam) {
+    if (scoreParam) {
       setScore(parseFloat(scoreParam));
-      setTier(tierParam);
-      setGrade(gradeParam);
+      if (genderParam === 'male' || genderParam === 'female') {
+        setGender(genderParam);
+      }
     } else {
       router.push('/');
     }
   }, [searchParams, router]);
 
-  const getTierColor = (tierValue: string) => {
-    switch(tierValue) {
-      case 'S': return 'from-yellow-400 to-yellow-600';
-      case 'A': return 'from-purple-400 to-purple-600';
-      case 'B': return 'from-blue-400 to-blue-600';
-      case 'C': return 'from-green-400 to-green-600';
-      case 'D': return 'from-gray-400 to-gray-600';
-      case 'E': return 'from-orange-400 to-orange-600';
-      case 'F': return 'from-red-400 to-red-600';
-      default: return 'from-gray-400 to-gray-600';
-    }
-  };
 
-  const getGradeMessage = (gradeValue: string) => {
-    if (gradeValue.includes('S')) return '최상위 매력 보유자입니다!';
-    if (gradeValue.includes('A')) return '상위권 매력을 가지고 있습니다!';
-    if (gradeValue.includes('B')) return '평균 이상의 매력을 가지고 있습니다.';
-    if (gradeValue.includes('C')) return '평균적인 매력을 가지고 있습니다.';
-    if (gradeValue.includes('D')) return '개선의 여지가 있습니다.';
-    if (gradeValue.includes('E')) return '노력이 필요합니다.';
-    return '많은 개선이 필요합니다.';
-  };
-
-  if (!score || !tier || !grade) {
+  if (!score) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 py-8">
+      <div className="max-w-4xl mx-auto px-4 space-y-6">
+        {/* 정규분포 차트 */}
+        <NormalDistributionChart 
+          score={score} 
+          gender={gender}
+          animate={true}
+        />
+        
+        {/* 기존 결과 카드 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
+          <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95 max-w-md mx-auto">
             <CardHeader className="text-center pb-6">
-              <div className="flex justify-center mb-4">
-                <motion.div
-                  initial={{ rotate: -180, scale: 0 }}
-                  animate={{ rotate: 0, scale: 1 }}
-                  transition={{ duration: 0.7, type: "spring" }}
-                >
-                  <Trophy className="w-16 h-16 text-yellow-500" />
-                </motion.div>
-              </div>
-              
-              <CardTitle className="text-2xl font-bold text-teal-800 mb-4">
-                테스트 결과
+              <CardTitle className="text-xl font-bold text-teal-800 mb-4">
+                추가 정보
               </CardTitle>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.5 }}
                 className="space-y-4"
               >
-                <div className="text-5xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
-                  {score.toFixed(1)}점
-                </div>
-
-                <div className="flex justify-center gap-3">
-                  <span className={`px-6 py-3 rounded-full text-lg font-bold bg-gradient-to-r ${getTierColor(tier)} text-white shadow-lg`}>
-                    {tier}급
-                  </span>
-                  <span className="px-6 py-3 bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 rounded-full text-lg font-bold shadow-lg">
-                    {grade}
-                  </span>
-                </div>
-
-                <p className="text-gray-700 font-medium mt-4">
-                  {getGradeMessage(grade)}
+                <p className="text-gray-700 font-medium">
+                  상세한 분석 결과를 획인하실 수 있습니다.
                 </p>
               </motion.div>
             </CardHeader>
@@ -117,7 +80,7 @@ function SimpleResultContent() {
                 className="w-full h-12 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium"
               >
                 <UserPlus className="mr-2 h-4 w-4" />
-                회원가입하고 상세 결과 보기
+                결과 보기
               </Button>
 
               <div className="grid grid-cols-2 gap-3">

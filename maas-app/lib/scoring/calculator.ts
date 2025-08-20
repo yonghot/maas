@@ -8,7 +8,54 @@ import {
   UserAnswer 
 } from '@/lib/types';
 
+export interface ScoringWeights {
+  male: {
+    wealth: number;
+    sense: number;
+    physical: number;
+  };
+  female: {
+    young: {
+      age: number;
+      appearance: number;
+      values: number;
+    };
+    old: {
+      age: number;
+      appearance: number;
+      values: number;
+    };
+  };
+}
+
+// 기본 가중치
+export const DEFAULT_WEIGHTS: ScoringWeights = {
+  male: {
+    wealth: 0.6,
+    sense: 0.3,
+    physical: 0.1
+  },
+  female: {
+    young: {
+      age: 0.2,
+      appearance: 0.4,
+      values: 0.4
+    },
+    old: {
+      age: 0.4,
+      appearance: 0.2,
+      values: 0.4
+    }
+  }
+};
+
 export class ScoringCalculator {
+  private weights: ScoringWeights;
+
+  constructor(weights?: ScoringWeights) {
+    this.weights = weights || DEFAULT_WEIGHTS;
+  }
+
   // 남성 점수 계산
   calculateMaleScore(answers: UserAnswer[], userInfo: UserInfo): TestResult {
     const scoring: MaleScoring = {
@@ -69,12 +116,15 @@ export class ScoringCalculator {
     scoring.sense.total = scoring.sense.socialIntelligence + scoring.sense.humor + scoring.sense.positivity;
     scoring.physical.total = scoring.physical.bmi + scoring.physical.exercise + scoring.physical.style;
 
-    // 최종 점수 계산 (가중치 적용)
-    const finalScore = Math.round(
-      (scoring.wealth.total * 0.6) + 
-      (scoring.sense.total * 0.3) + 
-      (scoring.physical.total * 0.1)
+    // 최종 점수 계산 (동적 가중치 적용)
+    const finalScore100 = Math.round(
+      (scoring.wealth.total * this.weights.male.wealth) + 
+      (scoring.sense.total * this.weights.male.sense) + 
+      (scoring.physical.total * this.weights.male.physical)
     );
+    
+    // 10점 만점으로 변환 (소수점 1자리까지)
+    const finalScore = Math.round((finalScore100 / 10) * 10) / 10;
 
     // 등급 산정
     const gradeInfo = this.getGrade(finalScore);
@@ -151,21 +201,24 @@ export class ScoringCalculator {
     scoring.appearance.total = scoring.appearance.attractiveness + scoring.appearance.bodyManagement + scoring.appearance.style;
     scoring.values.total = scoring.values.emotionalStability + scoring.values.rationalThinking + scoring.values.familyValues;
 
-    // 최종 점수 계산 (평가자 연령에 따른 가중치)
-    let finalScore: number;
+    // 최종 점수 계산 (평가자 연령에 따른 동적 가중치)
+    let finalScore100: number;
     if (evaluatorAge < 35) {
-      finalScore = Math.round(
-        (scoring.age.total * 0.2) + 
-        (scoring.appearance.total * 0.4) + 
-        (scoring.values.total * 0.4)
+      finalScore100 = Math.round(
+        (scoring.age.total * this.weights.female.young.age) + 
+        (scoring.appearance.total * this.weights.female.young.appearance) + 
+        (scoring.values.total * this.weights.female.young.values)
       );
     } else {
-      finalScore = Math.round(
-        (scoring.age.total * 0.4) + 
-        (scoring.appearance.total * 0.2) + 
-        (scoring.values.total * 0.4)
+      finalScore100 = Math.round(
+        (scoring.age.total * this.weights.female.old.age) + 
+        (scoring.appearance.total * this.weights.female.old.appearance) + 
+        (scoring.values.total * this.weights.female.old.values)
       );
     }
+    
+    // 10점 만점으로 변환 (소수점 1자리까지)
+    const finalScore = Math.round((finalScore100 / 10) * 10) / 10;
 
     // 등급 산정
     const gradeInfo = this.getGrade(finalScore);
@@ -192,33 +245,33 @@ export class ScoringCalculator {
     };
   }
 
-  // 등급 산정
+  // 등급 산정 (10점 만점 기준)
   private getGrade(score: number): { grade: Grade; title: string; description: string; color: string } {
-    if (score >= 95) return { 
+    if (score >= 9.5) return { 
       grade: 'S', 
       title: '결혼 끝판왕',
-      description: '상위 1% - 모든 면에서 완벽한 매력',
+      description: '상위 0.1% - 모든 면에서 완벽한 매력',
       color: 'from-yellow-400 to-yellow-600'
     };
-    if (score >= 85) return { 
+    if (score >= 8.5) return { 
       grade: 'A', 
       title: '결혼 준비 완료',
-      description: '상위 10% - 매우 매력적인 결혼 상대',
+      description: '상위 3% - 매우 매력적인 결혼 상대',
       color: 'from-purple-400 to-purple-600'
     };
-    if (score >= 70) return { 
+    if (score >= 7.0) return { 
       grade: 'B', 
       title: '매력 충분',
-      description: '상위 30% - 충분히 매력적',
+      description: '상위 15% - 충분히 매력적',
       color: 'from-blue-400 to-blue-600'
     };
-    if (score >= 55) return { 
+    if (score >= 5.5) return { 
       grade: 'C', 
       title: '노력하면 가능',
       description: '평균 수준 - 몇 가지 개선 필요',
       color: 'from-green-400 to-green-600'
     };
-    if (score >= 40) return { 
+    if (score >= 4.0) return { 
       grade: 'D', 
       title: '자기계발 필요',
       description: '하위 30% - 많은 노력 필요',

@@ -13,8 +13,9 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Users, TrendingUp, Award, BarChart3 } from 'lucide-react';
+import { Loader2, RefreshCw, Users, TrendingUp, Award, BarChart3, Settings } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Link from 'next/link';
 
 interface TestResult {
   id: string;
@@ -32,6 +33,8 @@ interface TestResult {
   personality_score?: number;
   lifestyle_score?: number;
   relationship_score?: number;
+  instagram_public?: boolean;
+  category_scores?: any;
   created_at: string;
 }
 
@@ -200,17 +203,28 @@ export default function AdminPage() {
             <h1 className="text-3xl font-bold text-teal-800 mb-2">관리자 대시보드</h1>
             <p className="text-teal-600/80">테스트 결과 및 통계를 확인할 수 있습니다.</p>
           </div>
-          <Button 
-            onClick={() => {
-              localStorage.removeItem('adminAuth');
-              sessionStorage.removeItem('adminAuth');
-              window.location.href = '/login?redirect=/admin';
-            }}
-            variant="outline"
-            className="border-red-300 text-red-600 hover:bg-red-50"
-          >
-            로그아웃
-          </Button>
+          <div className="flex gap-3">
+            <Link href="/admin/scoring">
+              <Button 
+                variant="outline"
+                className="border-teal-300 text-teal-600 hover:bg-teal-50"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                평가 기준 관리
+              </Button>
+            </Link>
+            <Button 
+              onClick={() => {
+                localStorage.removeItem('adminAuth');
+                sessionStorage.removeItem('adminAuth');
+                window.location.href = '/login?redirect=/admin';
+              }}
+              variant="outline"
+              className="border-red-300 text-red-600 hover:bg-red-50"
+            >
+              로그아웃
+            </Button>
+          </div>
         </div>
 
         {/* 통계 카드 */}
@@ -350,18 +364,13 @@ function TestResultsTable({
         <TableHeader>
           <TableRow className="bg-teal-50">
             <TableHead className="font-bold text-teal-800 sticky left-0 bg-teal-50 z-10">유형</TableHead>
+            <TableHead className="font-bold text-teal-800">Instagram</TableHead>
             <TableHead className="font-bold text-teal-800">성별</TableHead>
             <TableHead className="font-bold text-teal-800">나이</TableHead>
-            <TableHead className="font-bold text-teal-800">지역</TableHead>
             <TableHead className="font-bold text-teal-800">총점</TableHead>
-            <TableHead className="font-bold text-teal-800">등급</TableHead>
             <TableHead className="font-bold text-teal-800">티어</TableHead>
-            <TableHead className="font-bold text-teal-800">외모</TableHead>
-            <TableHead className="font-bold text-teal-800">경제력</TableHead>
-            <TableHead className="font-bold text-teal-800">성격</TableHead>
-            <TableHead className="font-bold text-teal-800">생활</TableHead>
-            <TableHead className="font-bold text-teal-800">관계</TableHead>
-            <TableHead className="font-bold text-teal-800">날짜</TableHead>
+            <TableHead className="font-bold text-teal-800">카테고리별 점수</TableHead>
+            <TableHead className="font-bold text-teal-800">가입일</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -373,25 +382,39 @@ function TestResultsTable({
                 </Badge>
               </TableCell>
               <TableCell>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm">{result.nickname || '-'}</span>
+                  {result.instagram_public !== undefined && (
+                    <Badge variant="outline" className="text-xs">
+                      {result.instagram_public ? '공개' : '비공개'}
+                    </Badge>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
                 <Badge variant={result.gender === 'male' ? 'outline' : 'outline'} 
                         className={result.gender === 'male' ? 'border-blue-500 text-blue-600' : 'border-pink-500 text-pink-600'}>
                   {result.gender === 'male' ? '남성' : '여성'}
                 </Badge>
               </TableCell>
               <TableCell>{result.age || '-'}</TableCell>
-              <TableCell>{result.region || '-'}</TableCell>
               <TableCell className="font-bold">{result.total_score.toFixed(1)}</TableCell>
-              <TableCell className={`font-bold ${getGradeColor(result.grade)}`}>
-                {result.grade}
-              </TableCell>
               <TableCell>
                 <Badge className={getTierColor(result.tier)}>{result.tier}</Badge>
               </TableCell>
-              <TableCell>{result.appearance_score?.toFixed(1) || '-'}</TableCell>
-              <TableCell>{result.economic_score?.toFixed(1) || '-'}</TableCell>
-              <TableCell>{result.personality_score?.toFixed(1) || '-'}</TableCell>
-              <TableCell>{result.lifestyle_score?.toFixed(1) || '-'}</TableCell>
-              <TableCell>{result.relationship_score?.toFixed(1) || '-'}</TableCell>
+              <TableCell>
+                <div className="text-xs">
+                  {result.category_scores ? (
+                    Object.entries(result.category_scores).map(([key, value]: [string, any]) => (
+                      <div key={key}>
+                        {key}: {typeof value === 'number' ? value.toFixed(1) : value}
+                      </div>
+                    ))
+                  ) : (
+                    '-'
+                  )}
+                </div>
+              </TableCell>
               <TableCell className="text-xs text-gray-500">
                 {new Date(result.created_at).toLocaleDateString('ko-KR')}
               </TableCell>

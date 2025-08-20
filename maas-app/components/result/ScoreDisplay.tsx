@@ -3,12 +3,18 @@
 import { motion } from 'framer-motion';
 import { TestResult } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
+import { calculatePercentile } from '@/lib/scoring/tier-system';
+import NormalDistributionChart from './NormalDistributionChart';
 
 interface ScoreDisplayProps {
   result: TestResult;
 }
 
 export default function ScoreDisplay({ result }: ScoreDisplayProps) {
+  // 10점 만점으로 변환
+  const scoreOutOf10 = (result.score / 10).toFixed(1);
+  const percentile = calculatePercentile(result.score);
+  
   // 원형 진행바를 위한 계산
   const circumference = 2 * Math.PI * 120; // 반지름 120
   const strokeDasharray = circumference;
@@ -77,7 +83,7 @@ export default function ScoreDisplay({ result }: ScoreDisplayProps) {
               >
                 <div className="text-6xl mb-2">{config.emoji}</div>
                 <div className={`text-5xl font-bold ${config.color} mb-1`}>
-                  {result.score}
+                  {scoreOutOf10}
                 </div>
                 <div className="text-lg text-gray-600">점</div>
               </motion.div>
@@ -86,24 +92,19 @@ export default function ScoreDisplay({ result }: ScoreDisplayProps) {
 
           {/* 등급 정보 */}
           <div className="flex-1 text-center lg:text-left space-y-6">
-            {/* 등급 배지 */}
+            {/* 백분위수 표시 - 등급 대신 */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.8 }}
-              className="inline-flex items-center gap-3"
+              className="space-y-2"
             >
-              <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${config.bgColor} border-2 border-current ${config.color}`}>
-                <span className="text-2xl font-bold">{result.grade}</span>
-              </div>
-              <div>
-                <h2 className={`text-3xl font-bold ${config.color}`}>
-                  {result.gradeInfo.title}
-                </h2>
-                <p className="text-gray-600 text-lg">
-                  {result.gradeInfo.description}
-                </p>
-              </div>
+              <h2 className={`text-3xl font-bold ${config.color}`}>
+                상위 {(100 - percentile).toFixed(1)}%
+              </h2>
+              <p className="text-gray-600 text-lg">
+                당신은 평가자 중 상위 {(100 - percentile).toFixed(1)}%에 속합니다
+              </p>
             </motion.div>
 
             {/* 사용자 정보 */}
@@ -131,25 +132,13 @@ export default function ScoreDisplay({ result }: ScoreDisplayProps) {
               </div>
             </motion.div>
 
-            {/* 진행률 바 */}
+            {/* 정규분포 차트 추가 */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.2 }}
-              className="space-y-2"
             >
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>전체 평균 대비</span>
-                <span>{result.score}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                <motion.div
-                  className={`h-full bg-gradient-to-r ${result.gradeInfo.color} rounded-full`}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${result.score}%` }}
-                  transition={{ duration: 1.5, delay: 1.3, ease: "easeOut" }}
-                />
-              </div>
+              <NormalDistributionChart score={result.score} gender={result.userInfo.gender} />
             </motion.div>
 
             {/* 등급별 멘트 */}
@@ -175,7 +164,7 @@ export default function ScoreDisplay({ result }: ScoreDisplayProps) {
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="space-y-1">
-              <div className="text-2xl font-bold text-gray-800">{getPercentile(result.score)}%</div>
+              <div className="text-2xl font-bold text-gray-800">{(100 - percentile).toFixed(1)}%</div>
               <div className="text-sm text-gray-600">상위 백분율</div>
             </div>
             <div className="space-y-1">
