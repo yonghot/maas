@@ -7,11 +7,48 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       auth: {
-        persistSession: true,
-        storageKey: 'supabase.auth.token',
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+        flowType: 'pkce',
         autoRefreshToken: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        persistSession: true,
+        storage: {
+          getItem: (key: string) => {
+            if (typeof window === 'undefined') return null;
+            
+            // 먼저 localStorage 확인
+            const localStorageValue = window.localStorage.getItem(key);
+            if (localStorageValue) return localStorageValue;
+            
+            // 쿠키에서도 확인
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(`${key}=`));
+            if (cookie) {
+              const value = cookie.split('=')[1];
+              return decodeURIComponent(value);
+            }
+            
+            return null;
+          },
+          setItem: (key: string, value: string) => {
+            if (typeof window === 'undefined') return;
+            
+            // localStorage에 저장
+            window.localStorage.setItem(key, value);
+            
+            // 쿠키에도 저장 (PKCE 지원)
+            const maxAge = 60 * 60 * 24 * 7; // 7일
+            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+          },
+          removeItem: (key: string) => {
+            if (typeof window === 'undefined') return;
+            
+            // localStorage에서 제거
+            window.localStorage.removeItem(key);
+            
+            // 쿠키에서도 제거
+            document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+          }
+        }
       }
     }
   );

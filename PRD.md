@@ -367,6 +367,13 @@ successful_matches (
 - 세션 기반 관리자 인증 시스템 구현
 
 ### 🛠 최근 수정사항 (2025-08-21)
+- **OAuth PKCE 인증 오류 해결**:
+  - Route Handler에서 NextResponse 쿠키 처리 방식 수정
+  - response.cookies.set() 메서드로 PKCE 쿠키 올바르게 설정
+  - auth-code와 code_verifier 쿠키 전달 문제 해결
+  - sameSite: 'lax', secure: false로 localhost 환경 대응
+  - 포트 고정 (3000)으로 OAuth redirect URL 일치 보장
+
 - **데이터베이스 문제 해결**:
   - localStorage 사용으로 OAuth 후 데이터 유실 문제 해결
   - region 컬럼 NULL 허용 및 기본값 'seoul' 설정

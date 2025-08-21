@@ -14,8 +14,28 @@ export async function GET() {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('가중치 조회 오류:', error);
-      return NextResponse.json({ error: '가중치 조회 실패' }, { status: 500 });
+      console.error('가중치 조회 오류 (테이블이 없을 수 있음):', error);
+      // 테이블이 없거나 오류가 있으면 기본 가중치 반환
+      const defaultWeights = {
+        male: {
+          wealth: 0.5,
+          sense: 0.3,
+          physical: 0.2
+        },
+        female: {
+          young: {
+            age: 0.4,
+            appearance: 0.4,
+            values: 0.2
+          },
+          old: {
+            age: 0.3,
+            appearance: 0.3,
+            values: 0.4
+          }
+        }
+      };
+      return NextResponse.json({ weights: defaultWeights }, { status: 200 });
     }
 
     // 가중치를 사용하기 쉬운 형태로 변환
@@ -39,10 +59,54 @@ export async function GET() {
       }
     });
 
+    // 데이터가 비어있으면 기본값 반환
+    if (!data || data.length === 0) {
+      const defaultWeights = {
+        male: {
+          wealth: 0.5,
+          sense: 0.3,
+          physical: 0.2
+        },
+        female: {
+          young: {
+            age: 0.4,
+            appearance: 0.4,
+            values: 0.2
+          },
+          old: {
+            age: 0.3,
+            appearance: 0.3,
+            values: 0.4
+          }
+        }
+      };
+      return NextResponse.json({ weights: defaultWeights }, { status: 200 });
+    }
+
     return NextResponse.json({ weights }, { status: 200 });
   } catch (err) {
     console.error('가중치 조회 오류:', err);
-    return NextResponse.json({ error: '서버 오류' }, { status: 500 });
+    // 오류 발생 시에도 기본 가중치 반환
+    const defaultWeights = {
+      male: {
+        wealth: 0.5,
+        sense: 0.3,
+        physical: 0.2
+      },
+      female: {
+        young: {
+          age: 0.4,
+          appearance: 0.4,
+          values: 0.2
+        },
+        old: {
+          age: 0.3,
+          appearance: 0.3,
+          values: 0.4
+        }
+      }
+    };
+    return NextResponse.json({ weights: defaultWeights }, { status: 200 });
   }
 }
 

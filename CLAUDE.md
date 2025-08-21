@@ -7,6 +7,90 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 코드 주석도 한국어로 작성
 - 기술 용어는 필요시 영어 병기 가능
 
+## 개발 명령어
+
+### 개발 서버 실행
+```bash
+cd maas-app
+npm run dev          # http://localhost:3000 (포트 고정)
+```
+
+### 빌드 및 품질 검사
+```bash
+npm run build        # 프로덕션 빌드
+npm run start        # 프로덕션 서버 실행  
+npm run lint         # ESLint 실행
+npx tsc --noEmit    # TypeScript 타입 체크
+```
+
+### Supabase 설정
+```bash
+npm run setup        # Supabase 환경 설정 스크립트
+npm run check-env    # 환경 변수 확인
+```
+
+### 테스트 및 검증 스크립트
+```bash
+# OAuth 테스트
+node scripts/test-google-auth.js    # Google OAuth 테스트
+node scripts/test-oauth-flow.js     # OAuth 플로우 테스트
+node scripts/manual-test-guide.js   # 수동 테스트 가이드
+
+# 데이터베이스 검증
+node scripts/check-db.js            # DB 연결 및 테이블 확인
+node scripts/create-test-profile.js # 테스트 프로필 생성
+node scripts/fix-profile-schema.js  # 프로필 스키마 수정
+
+# 자동화 도구
+node scripts/setup-supabase.js      # Supabase 설정 자동화
+node scripts/auto-fix-db.js         # DB 자동 수정
+```
+
+## 프로젝트 아키텍처
+
+### 디렉토리 구조
+```
+maas-app/
+├── app/              # Next.js 15 App Router
+│   ├── admin/        # 관리자 대시보드
+│   │   ├── oauth/    # OAuth 설정 가이드
+│   │   └── scoring/  # 평가 기준 관리
+│   ├── api/          # API Routes
+│   ├── auth/         # Supabase Auth 콜백
+│   ├── result/       # 결과 페이지
+│   └── test/         # 테스트 페이지
+├── components/       # React 컴포넌트
+├── lib/              # 핵심 비즈니스 로직
+│   ├── scoring/      # 점수 계산 시스템
+│   ├── questions/    # 성별별 질문 데이터
+│   └── supabase/     # Supabase 클라이언트
+├── store/            # Zustand 상태 관리
+├── scripts/          # 유틸리티 스크립트
+└── utils/            # 공통 유틸리티 함수
+```
+
+### 핵심 비즈니스 로직
+
+#### 점수 계산 시스템 (`lib/scoring/calculator.ts`)
+- **ScoringCalculator 클래스**: 성별별 점수 계산 로직
+- **남성 평가**: 재력(0.6) + 센스(0.3) + 피지컬(0.1)
+- **여성 평가**: 평가자 연령별 가중치 차별화
+  - 35세 미만: 나이(0.2) + 외모(0.4) + 가치관(0.4)
+  - 35세 이상: 나이(0.4) + 외모(0.2) + 가치관(0.4)
+- **10점 만점 시스템**: 소수점 1자리까지 표시
+- **정규분포 기반**: 평균 5점, 표준편차 1.5점
+
+#### 데이터베이스 연동 (`lib/supabase/`)
+- **클라이언트**: `createClient()` - 브라우저용 Supabase 클라이언트
+- **서버**: `createServerClient()` - 서버 사이드용 클라이언트
+- **인증**: Supabase Auth + OAuth (Google, Kakao)
+- **데이터 저장**: profiles 테이블에 테스트 결과 저장
+
+#### 상태 관리 (`store/test-store.ts`)
+- **Zustand + persist**: 브라우저 새로고침 시에도 상태 유지
+- **localStorage**: 테스트 결과 임시 저장 (OAuth 연동용)
+- **관리 데이터**: userInfo, answers, 진행상태, 결과
+
 ## 개발 가이드라인
 
 ### 문서 작성 원칙
@@ -75,6 +159,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **일관성 유지**: 프로젝트 전체에서 동일한 패턴 사용
 - **의존성 최소화**: 외부 라이브러리 신중히 선택
 
+## 알려진 이슈 및 해결책
+
+### OAuth PKCE 인증 오류
+- **문제**: "invalid request: both auth code and code verifier should be non-empty"
+- **해결**: 
+  - NextResponse 쿠키 처리 방식 수정 (`/app/api/auth/signin/route.ts`)
+  - 포트 3000 고정 (`package.json`에서 `-p 3000` 옵션)
+  - 쿠키 설정: `sameSite: 'lax'`, `secure: false` (localhost용)
+
+### 데이터베이스 연동
+- **문제**: OAuth 후 프로필 저장 실패
+- **해결**: 
+  - localStorage에 테스트 결과 임시 저장
+  - OAuth 콜백 후 `/result/save` 페이지에서 프로필 생성
+  - `profiles` 테이블에 결과 저장
+
+### Tailwind CSS 버전
+- **문제**: Next.js 15가 v4 설치
+- **해결**: `npm install -D tailwindcss@3.4.17`
+
+## 환경 변수
+
+```env
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=https://hvpyqchgimnzaotwztuy.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[YOUR_ANON_KEY]
+SUPABASE_SERVICE_ROLE_KEY=[YOUR_SERVICE_KEY]
+```
+
+## 관리자 정보
+
+- **URL**: `/admin`
+- **계정**: admin / maas2025
+- **기능**: 통계 대시보드, 평가 기준 관리, 사용자 데이터 조회
+
+## 주요 페이지 플로우
+
+### 테스트 플로우
+1. `/` - 랜딩 페이지 (성별 선택)
+2. `/test` - 무한 스크롤 형식의 질문 페이지
+3. `/signup-result` - 테스트 완료 후 회원가입 유도
+4. OAuth 로그인 → `/auth/callback` → `/result/save` → `/result`
+5. `/result` - 최종 결과 페이지 (점수, 티어, 상위 퍼센트)
+
+### 관리자 플로우
+- `/admin` - 로그인 페이지 (admin/maas2025)
+- `/admin/dashboard` - 통계 대시보드
+- `/admin/scoring` - 평가 기준 관리
+- `/admin/oauth` - OAuth 설정 가이드
+
+## 테스트 데이터
+
+### 테스트용 관리자 계정
+- URL: `/admin`
+- ID: `admin`
+- PW: `maas2025`
+
+### 테스트용 결제 키 (Toss Payments 테스트 환경)
+- Client Key: `test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq`
+- Secret Key: `test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R`
+
 ## 프로젝트별 구체적인 정보
 
-프로젝트별 구체적인 정보(기술 스택, 아키텍처, 비즈니스 로직 등)는 PRD.md 또는 프로젝트별 문서를 참조하세요.
+추가 정보는 PRD.md, SETUP_GUIDE.md, USER_PROMPTS.md를 참조하세요.

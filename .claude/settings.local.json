@@ -50,13 +50,19 @@
       "Bash(npx supabase db push:*)",
       "Bash(npx supabase:*)",
       "Bash(npx tsc:*)",
-      "Bash(supabase-mcp:*)"
+      "Bash(supabase-mcp:*)",
+      "Bash(start http://localhost:3000)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "D:\\d\\Cursor\\maas"
+    ]
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "playwright",
-    "shadcn"
+    "shadcn",
+    "supabase-local",
+    "supabase-josh"
   ]
 }

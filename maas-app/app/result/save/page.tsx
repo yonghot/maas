@@ -22,8 +22,20 @@ export default function SaveResultPage() {
           return;
         }
 
-        // localStorage와 sessionStorage에서 테스트 결과 가져오기 (localStorage 우선)
+        // localStorage, sessionStorage, 쿠키에서 테스트 결과 가져오기
         let testDataStr = localStorage.getItem('test_result') || sessionStorage.getItem('test_result');
+        
+        // 쿠키에서도 확인
+        if (!testDataStr) {
+          const cookies = document.cookie.split(';');
+          for (const cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'test_result') {
+              testDataStr = decodeURIComponent(value);
+              break;
+            }
+          }
+        }
         
         if (!testDataStr) {
           // 테스트 결과가 없으면 기존 프로필이 있는지 확인
@@ -85,9 +97,10 @@ export default function SaveResultPage() {
           // 오류가 있어도 결과 페이지로 이동 시도
         }
 
-        // localStorage와 sessionStorage 정리
+        // localStorage, sessionStorage, 쿠키 정리
         localStorage.removeItem('test_result');
         sessionStorage.removeItem('test_result');
+        document.cookie = 'test_result=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
 
         // 결과 페이지로 이동
         router.push('/result');

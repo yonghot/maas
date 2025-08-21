@@ -1,0 +1,23 @@
+{
+  "name": "MAAS - 결혼 매력도 테스트",
+  "short_name": "MAAS",
+  "description": "나의 결혼 매력도를 측정하고 분석해보세요",
+  "theme_color": "#14b8a6",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -303,7 +303,45 @@ claude mcp list  # 설치된 MCP 서버 목록 확인
 
 ## 13. 알려진 문제 및 해결 방법
 
-### 13.1 소셜 로그인 후 데이터 저장 문제
+### 13.1 OAuth PKCE 인증 오류
+
+#### 문제
+- "invalid request: both auth code and code verifier should be non-empty" 오류
+- OAuth 로그인 시 PKCE 쿠키가 제대로 전달되지 않음
+- 서버 포트가 계속 변경되어 redirect URL 불일치
+
+#### 해결 방법
+1. **NextResponse 쿠키 처리 수정**:
+   ```typescript
+   // /app/auth/callback/route.ts
+   let response = NextResponse.redirect(new URL(next, requestUrl.origin));
+   const supabase = createServerClient(url, key, {
+     cookies: {
+       set(name, value, options) {
+         response.cookies.set({ name, value, ...options });
+       }
+     }
+   });
+   ```
+
+2. **포트 고정 설정**:
+   ```json
+   // package.json
+   "scripts": {
+     "dev": "next dev -p 3000",
+     "start": "next start -p 3000"
+   }
+   ```
+
+3. **미들웨어 제외 설정**:
+   ```typescript
+   // middleware.ts
+   if (request.nextUrl.pathname === '/auth/callback') {
+     return NextResponse.next();
+   }
+   ```
+
+### 13.2 소셜 로그인 후 데이터 저장 문제
 
 #### 문제
 - Google OAuth 로그인 후 Instagram ID가 저장되지 않음
@@ -321,7 +359,7 @@ claude mcp list  # 설치된 MCP 서버 목록 확인
 - `/app/auth/callback/route.ts` - OAuth 콜백 처리
 - `/app/result/save/page.tsx` - 프로필 저장
 
-### 13.2 데이터베이스 제약 조건 오류
+### 13.3 데이터베이스 제약 조건 오류
 
 #### 문제
 - `region` 컬럼 NOT NULL 제약

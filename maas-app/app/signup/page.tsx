@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
@@ -13,7 +13,7 @@ import { useTestStore } from '@/store/test-store';
 
 export default function SignupPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { result } = useTestStore();
@@ -45,6 +45,22 @@ export default function SignupPage() {
         setError('카카오톡 로그인은 준비 중입니다.');
         setLoading(false);
         return;
+      }
+
+      // 테스트 결과가 있으면 쿠키에 저장 (바로 회원가입하는 경우에는 없을 수 있음)
+      if (result) {
+        const testData = {
+          result,
+          userInfo: useTestStore.getState().userInfo,
+          answers: useTestStore.getState().answers,
+          instagram_id: null, // 바로 회원가입 시 인스타그램 ID 없음
+          instagram_public: true,
+          timestamp: Date.now()
+        };
+        
+        // 쿠키에 저장
+        document.cookie = `test_result=${encodeURIComponent(JSON.stringify(testData))}; path=/; max-age=3600; SameSite=Lax`;
+        console.log('테스트 데이터 쿠키에 저장:', testData);
       }
 
       const { error } = await supabase.auth.signInWithOAuth({

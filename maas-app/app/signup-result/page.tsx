@@ -22,6 +22,18 @@ export default function SignupResultPage() {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
+    // URL 파라미터에서 에러 확인
+    const params = new URLSearchParams(window.location.search);
+    const errorParam = params.get('error');
+    
+    if (errorParam) {
+      if (errorParam === 'auth_failed') {
+        setError('소셜 로그인 인증에 실패했습니다. 다시 시도해주세요.');
+      } else if (errorParam === 'session_failed') {
+        setError('세션 생성에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+    
     // 결과가 없으면 테스트 페이지로 리다이렉트
     if (!result) {
       router.push('/test');
@@ -47,8 +59,28 @@ export default function SignupResultPage() {
     try {
       const supabase = createClient();
       
-      // 테스트 결과와 Instagram 정보를 localStorage에 저장 (영속성 보장)
+      // 테스트 결과와 Instagram 정보를 서버 쿠키에 저장
       if (typeof window !== 'undefined' && result) {
+        // API를 통해 서버 사이드 쿠키 설정
+        const prepareResponse = await fetch('/api/auth/prepare', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            result,
+            userInfo,
+            answers,
+            instagram_id: instagramId,
+            instagram_public: isPublic
+          }),
+        });
+        
+        if (!prepareResponse.ok) {
+          throw new Error('쿠키 설정 실패');
+        }
+        
+        // localStorage에도 백업 저장 (OAuth 리다이렉트 후에도 사용 가능)
         const testData = {
           result,
           userInfo,
@@ -57,27 +89,53 @@ export default function SignupResultPage() {
           instagram_public: isPublic,
           timestamp: Date.now()
         };
-        
-        // localStorage와 sessionStorage 모두에 저장
         localStorage.setItem('test_result', JSON.stringify(testData));
-        sessionStorage.setItem('test_result', JSON.stringify(testData));
         
         console.log('테스트 데이터 저장 완료:', testData);
       }
       
-      // Instagram ID와 공개 설정을 URL 파라미터로 전달
-      const redirectUrl = new URL(`${window.location.origin}/auth/callback`);
-      redirectUrl.searchParams.append('instagram_id', instagramId);
-      redirectUrl.searchParams.append('is_public', isPublic.toString());
+      // PKCE 코드 수동 생성 및 설정
+      console.log('🔐 PKCE 코드 생성 중...');
       
+      // OAuth 시작 전에 세션 확인
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('현재 세션 상태:', sessionData?.session ? '세션 있음' : '세션 없음');
+      
+      // signInWithOAuth 호출
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider,
         options: {
-          redirectTo: redirectUrl.toString()
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: false,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('OAuth 오류:', error);
+        throw error;
+      }
+      
+      if (data?.url) {
+        console.log('✅ OAuth URL 생성 성공!');
+        console.log('OAuth URL:', data.url);
+        
+        // URL에서 PKCE 파라미터 확인
+        const oauthUrl = new URL(data.url);
+        const hasCodeChallenge = oauthUrl.searchParams.has('code_challenge');
+        const hasChallengeMethod = oauthUrl.searchParams.has('code_challenge_method');
+        
+        console.log('PKCE 파라미터 확인:');
+        console.log('- code_challenge:', hasCodeChallenge ? '✅ 있음' : '❌ 없음');
+        console.log('- code_challenge_method:', hasChallengeMethod ? '✅ 있음' : '❌ 없음');
+        
+        if (!hasCodeChallenge || !hasChallengeMethod) {
+          console.warn('⚠️ PKCE 파라미터가 누락되었습니다!');
+        }
+      }
     } catch (err: any) {
       console.error('소셜 로그인 오류:', err);
       let errorMessage = '소셜 로그인 중 오류가 발생했습니다.';
@@ -86,6 +144,8 @@ export default function SignupResultPage() {
         errorMessage = `${provider === 'google' ? 'Google' : 'Kakao'} 로그인이 설정되지 않았습니다. 관리자에게 문의해주세요.`;
       } else if (err.message?.includes('validation_failed')) {
         errorMessage = '소셜 로그인 설정을 확인해주세요.';
+      } else if (err.message?.includes('code verifier')) {
+        errorMessage = 'PKCE 인증 오류가 발생했습니다. 페이지를 새로고침한 후 다시 시도해주세요.';
       }
       
       setError(errorMessage);

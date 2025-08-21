@@ -5,26 +5,92 @@ import { useRouter } from 'next/navigation';
 import { useTestStore } from '@/store/test-store';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, Home, RefreshCw, TrendingUp, Target, BarChart3, Users, Heart, Lightbulb, UserCheck } from 'lucide-react';
+import { Trophy, Home, RefreshCw, TrendingUp, Target, BarChart3, Users, Heart, Lightbulb, UserCheck, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 import NormalDistributionChart from '@/components/result/NormalDistributionChart';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ResultPage() {
   const router = useRouter();
-  const { result, userInfo } = useTestStore();
+  const { result: storeResult, userInfo: storeUserInfo } = useTestStore();
   const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState(storeResult);
+  const [userInfo, setUserInfo] = useState(storeUserInfo);
 
   useEffect(() => {
     setMounted(true);
     
-    // 결과가 없으면 테스트 페이지로 리다이렉트
-    if (!result) {
-      router.push('/test');
-    }
-  }, [result, router]);
+    const loadUserProfile = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          // 로그인된 사용자의 경우 DB에서 프로필 불러오기
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', user.id)
+            .single();
+          
+          if (profile && !error) {
+            // DB에서 불러온 프로필 데이터로 결과 설정
+            setResult({
+              score: profile.total_score,
+              totalScore: profile.total_score,
+              tier: profile.tier,
+              grade: profile.tier, // tier를 grade로도 사용
+              percentile: profile.percentile || 50, // percentile 추가
+              categoryScores: profile.category_scores || {},
+              advice: [] // advice 필드 추가
+            } as any);
+            
+            setUserInfo({
+              gender: profile.gender,
+              age: profile.age,
+              ageGroup: profile.age ? (profile.age < 30 ? '20s' : profile.age < 40 ? '30s' : '40s+') : '20s',
+              region: profile.region
+            } as any);
+            
+            console.log('DB에서 프로필 로드 성공:', profile);
+          } else if (!storeResult) {
+            // 프로필도 없고 store에도 데이터가 없으면 테스트 페이지로
+            console.log('프로필 없음, 테스트 페이지로 이동');
+            router.push('/test');
+            return;
+          }
+        } else if (!storeResult) {
+          // 로그인하지 않았고 store에도 데이터가 없으면 테스트 페이지로
+          router.push('/test');
+          return;
+        }
+      } catch (error) {
+        console.error('프로필 로드 오류:', error);
+        if (!storeResult) {
+          router.push('/test');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadUserProfile();
+  }, [storeResult, storeUserInfo, router]);
 
-  if (!mounted || !result) {
+  if (!mounted || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
+          <p className="text-teal-700 font-medium">결과를 불러오고 있습니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!result) {
     return null;
   }
 
