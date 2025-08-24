@@ -22,20 +22,29 @@ export default function SignupResultPage() {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    // URL 파라미터에서 에러 확인
+    // URL 파라미터에서 에러 및 메시지 확인
     const params = new URLSearchParams(window.location.search);
     const errorParam = params.get('error');
+    const messageParam = params.get('message');
     
     if (errorParam) {
       if (errorParam === 'auth_failed') {
         setError('소셜 로그인 인증에 실패했습니다. 다시 시도해주세요.');
       } else if (errorParam === 'session_failed') {
         setError('세션 생성에 실패했습니다. 다시 시도해주세요.');
+      } else if (errorParam === 'no_test_data') {
+        setError('테스트 결과를 찾을 수 없습니다. 테스트를 다시 진행해주세요.');
       }
     }
     
-    // 결과가 없으면 테스트 페이지로 리다이렉트
-    if (!result) {
+    // URL에서 message 파라미터가 있으면 표시 (에러가 아닌 안내 메시지)
+    if (messageParam && !errorParam) {
+      // 이 경우는 소셜 로그인은 성공했지만 테스트를 다시 해야 하는 상황
+      console.log('안내 메시지:', decodeURIComponent(messageParam));
+    }
+    
+    // 결과가 없고 특별한 안내 메시지도 없으면 테스트 페이지로 리다이렉트
+    if (!result && !messageParam) {
       router.push('/test');
     }
   }, [result, router]);
@@ -171,8 +180,77 @@ export default function SignupResultPage() {
     setInstagramId(value);
   };
 
-  if (!result) {
+  // URL 파라미터 확인
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const messageParam = params?.get('message');
+  const errorParam = params?.get('error');
+  
+  // 테스트 결과 없이 메시지만 있는 경우 (소셜 로그인 후 테스트 필요)
+  const isPostLogin = messageParam && !result;
+  
+  if (!result && !isPostLogin) {
     return null;
+  }
+
+  // 소셜 로그인 후 테스트 필요한 경우
+  if (isPostLogin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
+        <div className="w-full max-w-md">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
+              <CardHeader className="text-center pb-4">
+                <div className="flex justify-center mb-3">
+                  <Trophy className="w-12 h-12 text-green-500" />
+                </div>
+                <CardTitle className="text-2xl font-bold text-green-800">
+                  로그인 완료!
+                </CardTitle>
+                <p className="text-base text-gray-600 mt-3">
+                  {decodeURIComponent(messageParam || '')}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-green-50 rounded-lg p-4 mb-4">
+                  <p className="text-center text-green-700 text-sm font-medium mb-2">
+                    이제 결혼 매력도 테스트를 진행해보세요!
+                  </p>
+                  <ul className="mt-2 space-y-1 text-sm text-green-600">
+                    <li className="flex items-center">
+                      <span className="mr-2">✓</span> 5분 내외 간단한 테스트
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">✓</span> 성별맞춤 매력도 분석
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">✓</span> 백분위수 및 개선 방안 제공
+                    </li>
+                  </ul>
+                </div>
+                
+                <Button
+                  onClick={() => router.push('/test')}
+                  className="w-full h-12 bg-teal-600 hover:bg-teal-700 text-white font-medium flex items-center justify-center"
+                >
+                  테스트 시작하기
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+                
+                {errorParam === 'no_test_data' && (
+                  <p className="text-sm text-orange-600 text-center bg-orange-50 p-2 rounded mt-4">
+                    이전 테스트 결과를 찾을 수 없어 새로 진행합니다.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -38,7 +38,56 @@ export default function SaveResultPage() {
         }
         
         if (!testDataStr) {
-          // 테스트 결과가 없으면 기존 프로필이 있는지 확인
+          console.log('⚠️ 테스트 결과가 localStorage/sessionStorage/쿠키에 없음');
+          
+          // Zustand store에서 확인
+          const storeData = localStorage.getItem('maas-test-storage');
+          if (storeData) {
+            try {
+              const { state } = JSON.parse(storeData);
+              if (state?.result && state?.userInfo && state?.answers) {
+                console.log('✅ Zustand store에서 테스트 결과 발견');
+                // Zustand store 데이터로 프로필 저장 진행
+                const result = state.result;
+                const userInfo = state.userInfo;
+                const answers = state.answers;
+                const userLead = state.userLead;
+                
+                const profileData = {
+                  user_id: user.id,
+                  gender: userInfo.gender,
+                  age: userInfo.age || null,
+                  region: userInfo.region || 'seoul',
+                  total_score: result.score,
+                  percentile: result.percentile || 50,
+                  tier: result.tier || result.grade,
+                  answers: answers,
+                  category_scores: result.categoryScores,
+                  instagram_id: userLead?.instagram_id || null,
+                  instagram_public: userLead?.instagram_public !== undefined ? userLead.instagram_public : true,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                };
+
+                // 프로필 저장
+                const { error: profileError } = await supabase
+                  .from('profiles')
+                  .upsert(profileData, { onConflict: 'user_id' });
+
+                if (profileError) {
+                  console.error('프로필 저장 오류:', profileError);
+                }
+
+                // 결과 페이지로 이동
+                router.push('/result');
+                return;
+              }
+            } catch (parseError) {
+              console.error('Zustand store 파싱 오류:', parseError);
+            }
+          }
+          
+          // 기존 프로필이 있는지 확인
           const { data: existingProfile, error: profileError } = await supabase
             .from('profiles')
             .select('*')
@@ -47,12 +96,12 @@ export default function SaveResultPage() {
           
           if (existingProfile) {
             // 기존 프로필이 있으면 결과 페이지로
-            console.log('기존 프로필 발견, 결과 페이지로 이동');
+            console.log('✅ 기존 프로필 발견, 결과 페이지로 이동');
             router.push('/result');
           } else {
-            // 프로필도 없으면 테스트 페이지로
-            console.log('프로필 없음, 테스트 페이지로 이동');
-            router.push('/test');
+            // 프로필도 없으면 회원가입 결과 페이지로 (테스트 다시 하도록)
+            console.log('❌ 프로필 없고 테스트 결과도 없음, 회원가입 결과 페이지로 이동');
+            router.push('/signup-result?error=no_test_data&message=테스트를 다시 진행해주세요');
           }
           return;
         }

@@ -77,12 +77,13 @@ export default function OAuthAdminPage() {
     }
   };
 
-  const redirectURIs = [
-    'https://hvpyqchgimnzaotwztuy.supabase.co/auth/v1/callback',
-    'http://localhost:3000/auth/v1/callback',
-    'http://localhost:3001/auth/v1/callback',
-    'http://localhost:3002/auth/v1/callback',
-    'http://localhost:3003/auth/v1/callback'
+  // Supabase OAuth 콜백 URL (실제 OAuth Provider에 설정할 URL)
+  const supabaseCallbackURI = 'https://hvpyqchgimnzaotwztuy.supabase.co/auth/v1/callback';
+  
+  // 앱 리다이렉트 URL (Supabase 대시보드에 설정할 URL)
+  const appRedirectURIs = [
+    'https://maas-eight.vercel.app/auth/callback',  // 프로덕션 환경
+    'http://localhost:3000/auth/callback'            // 로컬 개발 환경
   ];
 
   if (isLoading) {
@@ -251,7 +252,7 @@ export default function OAuthAdminPage() {
           </motion.div>
         </div>
 
-        {/* Redirect URIs */}
+        {/* OAuth Provider Redirect URIs */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -259,27 +260,71 @@ export default function OAuthAdminPage() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>설정해야 할 Redirect URIs</CardTitle>
+              <CardTitle>OAuth Provider 설정 URL</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-4">
-                다음 URL들을 Google Cloud Console과 Kakao Developers에 등록해야 합니다:
-              </p>
-              <div className="space-y-2">
-                {redirectURIs.map((uri, index) => (
-                  <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded border">
-                    <code className="text-sm font-mono">{uri}</code>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Google & Kakao OAuth Provider에 등록할 콜백 URL:
+                  </p>
+                  <div className="flex items-center justify-between bg-blue-50 p-3 rounded border border-blue-200">
+                    <code className="text-sm font-mono text-blue-800">{supabaseCallbackURI}</code>
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => copyToClipboard(uri, `uri-${index}`)}
+                      onClick={() => copyToClipboard(supabaseCallbackURI, 'supabase-callback')}
                       className="ml-2"
                     >
                       <Copy className="w-4 h-4" />
-                      {copySuccess === `uri-${index}` ? '복사됨!' : '복사'}
+                      {copySuccess === 'supabase-callback' ? '복사됨!' : '복사'}
                     </Button>
                   </div>
-                ))}
+                  <p className="text-xs text-gray-500 mt-1">
+                    이 URL은 Google Cloud Console과 Kakao Developers의 Redirect URI 설정에 추가하세요.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Supabase Redirect URLs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Supabase 대시보드 설정 URL</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Supabase 대시보드 → Authentication → URL Configuration에 추가할 리다이렉트 URL:
+                </p>
+                <div className="space-y-2">
+                  {appRedirectURIs.map((uri, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded border">
+                      <code className="text-sm font-mono">{uri}</code>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => copyToClipboard(uri, `app-${index}`)}
+                        className="ml-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                        {copySuccess === `app-${index}` ? '복사됨!' : '복사'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800">
+                    <strong>중요:</strong> Site URL도 프로덕션 URL(https://maas-eight.vercel.app)로 설정해야 합니다.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -299,13 +344,23 @@ export default function OAuthAdminPage() {
               <p className="text-sm text-gray-600 mb-4">
                 OAuth 제공업체를 설정한 후 Supabase Dashboard에서 활성화해야 합니다.
               </p>
-              <Button 
-                onClick={() => window.open('https://app.supabase.com/project/hvpyqchgimnzaotwztuy/auth/providers', '_blank')}
-                className="w-full"
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Supabase Auth Providers 설정 열기
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={() => window.open('https://app.supabase.com/project/hvpyqchgimnzaotwztuy/auth/url-configuration', '_blank')}
+                  className="w-full"
+                  variant="outline"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  1. Supabase URL Configuration (리다이렉트 URL 설정)
+                </Button>
+                <Button 
+                  onClick={() => window.open('https://app.supabase.com/project/hvpyqchgimnzaotwztuy/auth/providers', '_blank')}
+                  className="w-full"
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  2. Supabase Auth Providers (OAuth 활성화)
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
