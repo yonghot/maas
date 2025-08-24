@@ -54,7 +54,7 @@ export default function SaveResultPage() {
                 const userLead = state.userLead;
                 
                 const profileData = {
-                  user_id: user.id,
+                  user_id: user.id, // auth.users.id 직접 참조 (새 구조)
                   gender: userInfo.gender,
                   age: userInfo.age || null,
                   region: userInfo.region || 'seoul',
@@ -63,8 +63,9 @@ export default function SaveResultPage() {
                   grade: result.grade || result.tier,
                   evaluation_data: answers, // answers 데이터를 evaluation_data에 저장
                   category_scores: result.categoryScores,
-                  instagram_id: null, // Zustand store에는 Instagram 정보가 없으므로 null로 설정
-                  instagram_public: true,
+                  // Instagram 정보 profiles에 직접 저장 (NULL 허용)
+                  instagram_id: userLead?.instagram_id || null,
+                  instagram_public: userLead?.instagram_public || false,
                   last_evaluated_at: new Date().toISOString(),
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
@@ -120,7 +121,7 @@ export default function SaveResultPage() {
             
             // 빈 프로필 생성 (나중에 테스트 완료 시 업데이트)
             const emptyProfileData = {
-              user_id: user.id,
+              user_id: user.id, // auth.users.id 직접 참조 (새 구조)
               gender: 'male', // 기본값
               age: 25, // 기본값
               region: 'seoul',
@@ -129,8 +130,9 @@ export default function SaveResultPage() {
               grade: 'F',
               evaluation_data: {},
               category_scores: {},
+              // Instagram 정보 profiles에 직접 저장 (NULL 허용)
               instagram_id: null,
-              instagram_public: true,
+              instagram_public: false,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };
@@ -155,9 +157,9 @@ export default function SaveResultPage() {
           instagram_public
         });
 
-        // 프로필 데이터 생성 (Instagram 정보 포함)
+        // 프로필 데이터 생성 (새 구조: auth.users 직접 참조)
         const profileData = {
-          user_id: user.id,
+          user_id: user.id, // auth.users.id 직접 참조 (public.users 제거됨)
           gender: userInfo.gender,
           age: userInfo.age || null,
           region: userInfo.region || 'seoul',
@@ -166,7 +168,8 @@ export default function SaveResultPage() {
           grade: result.grade || result.tier,
           evaluation_data: answers, // answers를 evaluation_data에 저장
           category_scores: result.categoryScores,
-          instagram_id: instagram_id || null,
+          // Instagram 정보 profiles 테이블에 직접 저장 (선택사항)
+          instagram_id: instagram_id || null, // NULL 허용으로 변경
           instagram_public: instagram_public !== undefined ? instagram_public : true,
           last_evaluated_at: new Date().toISOString(),
           created_at: new Date().toISOString(),

@@ -204,6 +204,15 @@ export default function AdminPage() {
             <p className="text-teal-600/80">테스트 결과 및 통계를 확인할 수 있습니다.</p>
           </div>
           <div className="flex gap-3">
+            <Link href="/admin/accounts">
+              <Button 
+                variant="outline"
+                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                계정 관리
+              </Button>
+            </Link>
             <Link href="/admin/scoring">
               <Button 
                 variant="outline"
@@ -287,6 +296,11 @@ export default function AdminPage() {
               <div>
                 <CardTitle className="text-xl text-teal-800">테스트 결과 목록</CardTitle>
                 <p className="text-sm text-gray-600 mt-1">최근 100건의 테스트 결과를 표시합니다.</p>
+                <p className="text-sm text-blue-600 mt-1">
+                  💡 <Link href="/admin/accounts" className="underline hover:text-blue-800">
+                    계정 관리 페이지
+                  </Link>에서 전체 계정 정보를 확인하고 Excel로 다운로드할 수 있습니다.
+                </p>
               </div>
               <Button 
                 onClick={fetchTestResults} 
