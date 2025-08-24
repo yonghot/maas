@@ -101,20 +101,12 @@ export async function GET(request: Request) {
             console.log('✅ 기존 프로필 있음, 결과 페이지로 이동')
             return NextResponse.redirect(`${origin}/result`)
           } else {
-            // 신규 사용자 - 테스트 결과 확인 후 처리
-            console.log('⚠️ 프로필 없음, 테스트 결과 확인 중...')
+            // 신규 사용자 - save 페이지로 보내서 처리하도록 함
+            console.log('⚠️ 프로필 없음, save 페이지에서 데이터 확인 및 처리')
             
-            // 다양한 위치에서 테스트 결과 확인
-            const testResultCookie = cookieStore.get('test_result')
-            const localStorage = cookieStore.get('maas-test-storage')
-            
-            if (testResultCookie || localStorage) {
-              console.log('✅ 테스트 결과 발견, save 페이지로 이동')
-              return NextResponse.redirect(`${origin}/result/save`)
-            } else {
-              console.log('⚠️ 테스트 결과 없음, 회원가입 결과 페이지로 이동')
-              return NextResponse.redirect(`${origin}/signup-result?message=소셜 로그인이 완료되었습니다. 테스트를 진행해주세요.`)
-            }
+            // 테스트 결과 유무와 상관없이 save 페이지로 보냄
+            // save 페이지에서 더 정교한 데이터 복구 로직을 실행
+            return NextResponse.redirect(`${origin}/result/save`)
           }
         } else {
           console.error('❌ 사용자 정보 없음')

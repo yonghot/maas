@@ -59,23 +59,39 @@ export default function SaveResultPage() {
                   age: userInfo.age || null,
                   region: userInfo.region || 'seoul',
                   total_score: result.score,
-                  percentile: result.percentile || 50,
                   tier: result.tier || result.grade,
-                  answers: answers,
+                  grade: result.grade || result.tier,
+                  evaluation_data: answers, // answers 데이터를 evaluation_data에 저장
                   category_scores: result.categoryScores,
-                  instagram_id: userLead?.instagram_id || null,
-                  instagram_public: userLead?.instagram_public !== undefined ? userLead.instagram_public : true,
+                  instagram_id: null, // Zustand store에는 Instagram 정보가 없으므로 null로 설정
+                  instagram_public: true,
+                  last_evaluated_at: new Date().toISOString(),
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
                 };
 
                 // 프로필 저장
-                const { error: profileError } = await supabase
+                console.log('💾 Zustand store에서 프로필 저장 시도:', JSON.stringify(profileData, null, 2));
+                
+                const { data: profile, error: profileError } = await supabase
                   .from('profiles')
-                  .upsert(profileData, { onConflict: 'user_id' });
+                  .upsert(profileData, { onConflict: 'user_id' })
+                  .select()
+                  .single();
 
                 if (profileError) {
-                  console.error('프로필 저장 오류:', profileError);
+                  console.error('❌ Zustand store 프로필 저장 오류:', {
+                    message: profileError.message,
+                    code: profileError.code,
+                    details: profileError.details,
+                    hint: profileError.hint
+                  });
+                  
+                  // 오류 발생 시에도 결과 페이지로 이동하지만 메시지 표시
+                  router.push('/result?error=save_failed&message=' + encodeURIComponent('프로필 저장에 실패했지만 로그인은 완료되었습니다.'));
+                  return;
+                } else {
+                  console.log('✅ Zustand store 프로필 저장 성공:', profile);
                 }
 
                 // 결과 페이지로 이동
@@ -99,9 +115,33 @@ export default function SaveResultPage() {
             console.log('✅ 기존 프로필 발견, 결과 페이지로 이동');
             router.push('/result');
           } else {
-            // 프로필도 없으면 회원가입 결과 페이지로 (테스트 다시 하도록)
-            console.log('❌ 프로필 없고 테스트 결과도 없음, 회원가입 결과 페이지로 이동');
-            router.push('/signup-result?error=no_test_data&message=테스트를 다시 진행해주세요');
+            // 프로필도 없고 테스트 결과도 없음 - 기본 프로필 생성하고 테스트 페이지로 안내
+            console.log('❌ 프로필 없고 테스트 결과도 없음');
+            
+            // 빈 프로필 생성 (나중에 테스트 완료 시 업데이트)
+            const emptyProfileData = {
+              user_id: user.id,
+              gender: 'male', // 기본값
+              age: 25, // 기본값
+              region: 'seoul',
+              total_score: 0,
+              tier: 'F',
+              grade: 'F',
+              evaluation_data: {},
+              category_scores: {},
+              instagram_id: null,
+              instagram_public: true,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+
+            // 빈 프로필 저장
+            await supabase
+              .from('profiles')
+              .upsert(emptyProfileData, { onConflict: 'user_id' });
+
+            console.log('✅ 빈 프로필 생성 완료, 테스트 페이지로 안내');
+            router.push('/signup-result?message=소셜 로그인이 완료되었습니다. 이제 매력도 테스트를 진행해보세요!');
           }
           return;
         }
@@ -120,19 +160,22 @@ export default function SaveResultPage() {
           user_id: user.id,
           gender: userInfo.gender,
           age: userInfo.age || null,
-          region: userInfo.region || 'seoul',  // region 필드 추가!
+          region: userInfo.region || 'seoul',
           total_score: result.score,
-          percentile: result.percentile,
-          tier: result.tier,
-          answers: answers,
+          tier: result.tier || result.grade,
+          grade: result.grade || result.tier,
+          evaluation_data: answers, // answers를 evaluation_data에 저장
           category_scores: result.categoryScores,
           instagram_id: instagram_id || null,
           instagram_public: instagram_public !== undefined ? instagram_public : true,
+          last_evaluated_at: new Date().toISOString(),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
 
         // 프로필 저장 (upsert 사용하여 중복 방지)
+        console.log('💾 프로필 저장 시도:', JSON.stringify(profileData, null, 2));
+        
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .upsert(profileData, {
@@ -142,8 +185,18 @@ export default function SaveResultPage() {
           .single();
 
         if (profileError) {
-          console.error('프로필 저장 오류:', profileError);
-          // 오류가 있어도 결과 페이지로 이동 시도
+          console.error('❌ 프로필 저장 오류:', {
+            message: profileError.message,
+            code: profileError.code,
+            details: profileError.details,
+            hint: profileError.hint
+          });
+          
+          // 오류 발생 시에도 결과 페이지로 이동하지만 메시지 표시
+          router.push('/result?error=save_failed&message=' + encodeURIComponent('프로필 저장에 실패했지만 로그인은 완료되었습니다.'));
+          return;
+        } else {
+          console.log('✅ 프로필 저장 성공:', profile);
         }
 
         // localStorage, sessionStorage, 쿠키 정리
