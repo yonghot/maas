@@ -101,8 +101,8 @@ export default function SettingsPage() {
 
   const getPlanBadgeColor = (planId: string) => {
     switch (planId) {
-      case 'premium': return 'bg-gradient-to-r from-cyan-500 to-teal-500 text-white';
-      case 'basic': return 'bg-gradient-to-r from-teal-500 to-mint-500 text-white';
+      case 'premium': return 'bg-gradient-to-r from-purple-400 to-purple-600 text-white';
+      case 'basic': return 'bg-gradient-to-r from-purple-500 to-purple-500 text-white';
       default: return 'bg-gray-200 text-gray-700';
     }
   };
@@ -117,14 +117,14 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50">
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
@@ -199,22 +199,22 @@ export default function SettingsPage() {
                     <h4 className="font-medium mb-3">포함된 기능</h4>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
-                        <span className="text-teal-500">✓</span>
+                        <span className="text-purple-500">✓</span>
                         하루 {subscription.features.daily_views}명 프로필 조회
                       </li>
                       <li className="flex items-center gap-2">
-                        <span className="text-teal-500">✓</span>
+                        <span className="text-purple-500">✓</span>
                         {subscription.features.tier_access === 'all' ? '모든 티어' : '같거나 낮은 티어'} 접근
                       </li>
                       {subscription.features.instagram_access && (
                         <li className="flex items-center gap-2">
-                          <span className="text-teal-500">✓</span>
+                          <span className="text-purple-500">✓</span>
                           인스타그램 ID 확인 가능
                         </li>
                       )}
                       {subscription.features.priority_display && (
                         <li className="flex items-center gap-2">
-                          <span className="text-teal-500">✓</span>
+                          <span className="text-purple-500">✓</span>
                           우선 노출
                         </li>
                       )}
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                       </Button>
                     )}
                     <Button
-                      className="flex-1 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
+                      className="flex-1 bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600"
                       onClick={() => router.push('/pricing')}
                     >
                       플랜 변경
@@ -262,7 +262,7 @@ export default function SettingsPage() {
                 <div className="text-center py-4">
                   <p className="text-gray-600 mb-4">무료 플랜을 이용 중입니다.</p>
                   <Button
-                    className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600"
+                    className="bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600"
                     onClick={() => router.push('/pricing')}
                   >
                     프리미엄으로 업그레이드

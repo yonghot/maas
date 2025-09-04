@@ -54,7 +54,7 @@ export default function MatchCard({
         <CardContent className="p-0">
           {/* 프로필 이미지 영역 (임시) */}
           <motion.div 
-            className="h-64 bg-gradient-to-br from-teal-100 to-cyan-100 relative"
+            className="h-64 bg-gradient-to-br from-purple-100 to-cyan-100 relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -75,7 +75,7 @@ export default function MatchCard({
                 onClick={() => setShowInstagram(!showInstagram)}
                 className="absolute top-4 right-4 bg-white/90 backdrop-blur rounded-full p-2 shadow-lg transition-all"
               >
-                <Instagram className="w-5 h-5 text-teal-500" />
+                <Instagram className="w-5 h-5 text-purple-500" />
               </motion.button>
             ) : (
               <motion.div 
@@ -97,7 +97,7 @@ export default function MatchCard({
                   exit={{ opacity: 0, y: -10, scale: 0.9 }}
                   className="absolute top-16 right-4 bg-white rounded-lg px-3 py-2 shadow-lg"
                 >
-                  <p className="text-sm font-medium text-teal-600">
+                  <p className="text-sm font-medium text-purple-600">
                     @{card.instagramId}
                   </p>
                 </motion.div>
@@ -131,7 +131,7 @@ export default function MatchCard({
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-3 border border-teal-200"
+              className="bg-gradient-to-r from-purple-50 to-cyan-50 rounded-lg p-3 border border-purple-200"
             >
               <p className="text-sm font-medium text-gray-700">
                 {tierInfo.title}
@@ -148,7 +148,7 @@ export default function MatchCard({
                 {card.mainAttractPoints.map((point, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-teal-100 text-teal-700 rounded-full text-xs font-medium transition-all hover:bg-teal-200"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium transition-all hover:bg-purple-200"
                   >
                     <Sparkles className="w-3 h-3" />
                     {point}
@@ -167,7 +167,7 @@ export default function MatchCard({
                 <Button
                   onClick={onView}
                   size="lg"
-                  className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-lg transition-all"
+                  className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white shadow-lg transition-all"
                 >
                   <ChevronRight className="w-5 h-5 mr-2" />
                   다음 프로필 보기
@@ -185,7 +185,7 @@ export default function MatchCard({
                 <Button
                   onClick={onShowDetail}
                   variant="ghost"
-                  className="w-full text-sm text-gray-500 hover:text-teal-600 transition-colors"
+                  className="w-full text-sm text-gray-500 hover:text-purple-600 transition-colors"
                 >
                   <Info className="w-4 h-4 mr-2" />
                   프로필 상세 보기

@@ -70,7 +70,7 @@ export default function AdminAccountsPage() {
   
   // 검색 및 필터링 상태
   const [searchTerm, setSearchTerm] = useState('');
-  const [genderFilter, setGenderFilter] = useState<string>('');
+  const [genderFilter, setGenderFilter] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -115,7 +115,7 @@ export default function AdminAccountsPage() {
         page: page.toString(),
         limit: '20',
         ...(searchTerm && { search: searchTerm }),
-        ...(genderFilter && { gender: genderFilter })
+        ...(genderFilter !== 'all' && { gender: genderFilter })
       });
 
       const response = await fetch(`/api/admin/accounts?${params}`, {
@@ -241,12 +241,12 @@ export default function AdminAccountsPage() {
 
   if (isLoading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center">
         <Card className="shadow-xl border-0">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center space-y-4">
-              <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
-              <p className="text-center text-teal-600/80">계정 정보 로딩 중...</p>
+              <Loader2 className="h-10 w-10 animate-spin text-purple-600" />
+              <p className="text-center text-purple-600/80">계정 정보 로딩 중...</p>
             </div>
           </CardContent>
         </Card>
@@ -256,7 +256,7 @@ export default function AdminAccountsPage() {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center">
         <Card className="shadow-xl border-0 max-w-md">
           <CardHeader>
             <CardTitle className="text-center text-red-600">접근 제한</CardTitle>
@@ -265,7 +265,7 @@ export default function AdminAccountsPage() {
             <p className="text-center text-gray-600 mb-4">{error || '관리자 권한이 필요합니다.'}</p>
             <Button 
               onClick={() => router.push('/login?redirect=/admin/accounts')} 
-              className="w-full bg-gradient-to-r from-teal-500 to-teal-600"
+              className="w-full bg-gradient-to-r from-purple-500 to-purple-600"
             >
               관리자 로그인
             </Button>
@@ -276,21 +276,21 @@ export default function AdminAccountsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 p-8">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 p-8">
       <div className="max-w-screen-2xl mx-auto">
         {/* 헤더 */}
         <div className="mb-8 flex justify-between items-center">
           <div>
             <div className="flex items-center gap-4 mb-2">
               <Link href="/admin">
-                <Button variant="outline" size="sm" className="border-teal-300 text-teal-600 hover:bg-teal-50">
+                <Button variant="outline" size="sm" className="border-purple-300 text-purple-600 hover:bg-purple-50">
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   관리자 메인
                 </Button>
               </Link>
-              <h1 className="text-3xl font-bold text-teal-800">계정 관리</h1>
+              <h1 className="text-3xl font-bold text-purple-800">계정 관리</h1>
             </div>
-            <p className="text-teal-600/80">전체 사용자 계정 정보를 관리할 수 있습니다.</p>
+            <p className="text-purple-600/80">전체 사용자 계정 정보를 관리할 수 있습니다.</p>
           </div>
           <div className="flex gap-3">
             <Button 
@@ -304,7 +304,7 @@ export default function AdminAccountsPage() {
             <Button 
               onClick={() => fetchAccounts(1, true)}
               variant="outline"
-              className="border-teal-300 text-teal-600 hover:bg-teal-50"
+              className="border-purple-300 text-purple-600 hover:bg-purple-50"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               새로고침
@@ -320,9 +320,9 @@ export default function AdminAccountsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">총 계정 수</p>
-                    <p className="text-2xl font-bold text-teal-700">{statistics.totalCount}</p>
+                    <p className="text-2xl font-bold text-purple-700">{statistics.totalCount}</p>
                   </div>
-                  <Users className="h-8 w-8 text-teal-500" />
+                  <Users className="h-8 w-8 text-purple-500" />
                 </div>
               </CardContent>
             </Card>
@@ -332,9 +332,9 @@ export default function AdminAccountsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">평균 점수</p>
-                    <p className="text-2xl font-bold text-teal-700">{statistics.averageScore.toFixed(1)}</p>
+                    <p className="text-2xl font-bold text-purple-700">{statistics.averageScore.toFixed(1)}</p>
                   </div>
-                  <TrendingUp className="h-8 w-8 text-teal-500" />
+                  <TrendingUp className="h-8 w-8 text-purple-500" />
                 </div>
               </CardContent>
             </Card>
@@ -388,7 +388,7 @@ export default function AdminAccountsPage() {
                     <SelectValue placeholder="전체" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">전체</SelectItem>
+                    <SelectItem value="all">전체</SelectItem>
                     <SelectItem value="male">남성</SelectItem>
                     <SelectItem value="female">여성</SelectItem>
                   </SelectContent>
@@ -401,7 +401,7 @@ export default function AdminAccountsPage() {
         {/* 계정 목록 테이블 */}
         <Card className="border-0 shadow-xl bg-white/95">
           <CardHeader>
-            <CardTitle className="text-xl text-teal-800">
+            <CardTitle className="text-xl text-purple-800">
               계정 목록 ({accounts.length}개 표시)
             </CardTitle>
           </CardHeader>
@@ -447,18 +447,18 @@ function AccountsTable({
       <div className="overflow-x-auto overflow-y-auto max-h-[600px] border rounded-lg">
         <Table className="w-full min-w-[1400px]">
           <TableHeader>
-            <TableRow className="bg-teal-50">
-              <TableHead className="font-bold text-teal-800 sticky left-0 bg-teal-50 z-10">이메일</TableHead>
-              <TableHead className="font-bold text-teal-800">제공자</TableHead>
-              <TableHead className="font-bold text-teal-800">성별</TableHead>
-              <TableHead className="font-bold text-teal-800">나이</TableHead>
-              <TableHead className="font-bold text-teal-800">지역</TableHead>
-              <TableHead className="font-bold text-teal-800">총점</TableHead>
-              <TableHead className="font-bold text-teal-800">티어</TableHead>
-              <TableHead className="font-bold text-teal-800">Instagram</TableHead>
-              <TableHead className="font-bold text-teal-800">최근 평가</TableHead>
-              <TableHead className="font-bold text-teal-800">가입일</TableHead>
-              <TableHead className="font-bold text-teal-800">최근 로그인</TableHead>
+            <TableRow className="bg-purple-50">
+              <TableHead className="font-bold text-purple-800 sticky left-0 bg-purple-50 z-10">이메일</TableHead>
+              <TableHead className="font-bold text-purple-800">제공자</TableHead>
+              <TableHead className="font-bold text-purple-800">성별</TableHead>
+              <TableHead className="font-bold text-purple-800">나이</TableHead>
+              <TableHead className="font-bold text-purple-800">지역</TableHead>
+              <TableHead className="font-bold text-purple-800">총점</TableHead>
+              <TableHead className="font-bold text-purple-800">티어</TableHead>
+              <TableHead className="font-bold text-purple-800">Instagram</TableHead>
+              <TableHead className="font-bold text-purple-800">최근 평가</TableHead>
+              <TableHead className="font-bold text-purple-800">가입일</TableHead>
+              <TableHead className="font-bold text-purple-800">최근 로그인</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -534,7 +534,7 @@ function AccountsTable({
             onClick={onLoadMore}
             disabled={isLoadingMore}
             variant="outline"
-            className="border-teal-300 text-teal-600 hover:bg-teal-50"
+            className="border-purple-300 text-purple-600 hover:bg-purple-50"
           >
             {isLoadingMore ? (
               <>

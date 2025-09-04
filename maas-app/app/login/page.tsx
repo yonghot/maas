@@ -118,18 +118,18 @@ function LoginContent() {
   const isAdminLogin = redirect === '/admin';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
           <CardHeader className="text-center pb-4">
             <div className="flex justify-center mb-3">
               {isAdminLogin ? (
-                <Shield className="w-12 h-12 text-teal-600" />
+                <Shield className="w-12 h-12 text-purple-600" />
               ) : (
-                <User className="w-12 h-12 text-teal-600" />
+                <User className="w-12 h-12 text-purple-600" />
               )}
             </div>
-            <CardTitle className="text-2xl font-bold text-teal-800">
+            <CardTitle className="text-2xl font-bold text-purple-800">
               {isAdminLogin ? '관리자 로그인' : '로그인'}
             </CardTitle>
             {isAdminLogin && (
@@ -202,7 +202,7 @@ function LoginContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-10 h-12 border-gray-300 focus:border-teal-500"
+                    className="pl-10 h-12 border-gray-300 focus:border-purple-500"
                   />
                 </div>
               </div>
@@ -220,7 +220,7 @@ function LoginContent() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-10 h-12 border-gray-300 focus:border-teal-500"
+                    className="pl-10 h-12 border-gray-300 focus:border-purple-500"
                   />
                 </div>
               </div>
@@ -230,7 +230,7 @@ function LoginContent() {
                   id="remember" 
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  className="data-[state=checked]:bg-teal-600 data-[state=checked]:border-teal-600"
+                  className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
                 />
                 <Label 
                   htmlFor="remember" 
@@ -249,7 +249,7 @@ function LoginContent() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium"
+                className="w-full h-12 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium"
               >
                 {isLoading ? (
                   <>
@@ -269,7 +269,7 @@ function LoginContent() {
                   아직 계정이 없으신가요?{' '}
                   <button
                     onClick={() => router.push('/')}
-                    className="text-teal-600 hover:underline font-medium"
+                    className="text-purple-600 hover:underline font-medium"
                   >
                     테스트 시작하기
                   </button>
@@ -286,10 +286,10 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-teal-600">로딩 중...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-purple-600">로딩 중...</p>
         </div>
       </div>
     }>

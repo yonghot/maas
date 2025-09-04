@@ -96,18 +96,15 @@ export async function GET(request: Request) {
             console.error('프로필 조회 오류:', profileError)
           }
           
+          // 기존/신규 사용자 상관없이 모두 save 페이지로 통합 처리
+          // save 페이지에서 프로필 유무에 따라 적절히 처리됨
           if (profile) {
-            // 기존 사용자 - 바로 결과 페이지로
-            console.log('✅ 기존 프로필 있음, 결과 페이지로 이동')
-            return NextResponse.redirect(`${origin}/result`)
+            console.log('✅ 기존 프로필 있음, save 페이지에서 확인 후 result로 이동')
           } else {
-            // 신규 사용자 - save 페이지로 보내서 처리하도록 함
-            console.log('⚠️ 프로필 없음, save 페이지에서 데이터 확인 및 처리')
-            
-            // 테스트 결과 유무와 상관없이 save 페이지로 보냄
-            // save 페이지에서 더 정교한 데이터 복구 로직을 실행
-            return NextResponse.redirect(`${origin}/result/save`)
+            console.log('⚠️ 프로필 없음, save 페이지에서 데이터 복구 및 프로필 생성')
           }
+          
+          return NextResponse.redirect(`${origin}/result/save`)
         } else {
           console.error('❌ 사용자 정보 없음')
           return NextResponse.redirect(`${origin}/signup-result?error=no_user`)

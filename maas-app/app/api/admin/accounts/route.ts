@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (search) {
-        profileQuery = profileQuery.or(`instagram_id.ilike.%${search}%`)
+        profileQuery = profileQuery.or(`email.ilike.%${search}%,instagram_id.ilike.%${search}%`)
       }
 
       const { data: profilesData, error: profilesError } = await profileQuery
@@ -104,22 +104,14 @@ export async function GET(request: NextRequest) {
         throw profilesError
       }
 
-      // auth.users 정보 추가 (Service Role로 접근)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
-
-      if (authError) {
-        throw authError
-      }
-
-      // 데이터 조인
+      // profiles 테이블에서 직접 이메일 정보 사용 (auth.users 의존성 제거)
       const combinedData = profilesData?.map(profile => {
-        const authUser = authUsers.users.find(u => u.id === profile.user_id)
         return {
           user_id: profile.user_id,
-          email: authUser?.email || 'N/A',
-          auth_created_at: authUser?.created_at,
-          last_sign_in_at: authUser?.last_sign_in_at,
-          provider: authUser?.app_metadata?.provider || 'unknown',
+          email: profile.email || 'N/A',
+          auth_created_at: profile.created_at, // profile 생성 시간 사용
+          last_sign_in_at: null, // auth.users 접근 불가로 null
+          provider: 'oauth', // 간소화
           
           gender: profile.gender,
           age: profile.age,

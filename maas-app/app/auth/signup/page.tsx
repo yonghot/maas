@@ -102,7 +102,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-purple-50 to-cyan-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -215,7 +215,7 @@ export default function SignUpPage() {
               {/* 제출 버튼 */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white"
+                className="w-full bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white"
                 disabled={loading}
               >
                 {loading ? '처리 중...' : '회원가입'}
@@ -224,7 +224,7 @@ export default function SignUpPage() {
               {/* 로그인 링크 */}
               <p className="text-center text-sm text-gray-600">
                 이미 계정이 있으신가요?{' '}
-                <Link href="/auth/login" className="text-teal-600 hover:text-teal-700 font-medium">
+                <Link href="/auth/login" className="text-purple-600 hover:text-purple-700 font-medium">
                   로그인
                 </Link>
               </p>

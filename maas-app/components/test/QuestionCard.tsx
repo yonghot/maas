@@ -63,15 +63,15 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
       >
         {question.options.map((option: QuestionOption) => (
           <div key={option.value.toString()} 
-               className="flex items-center space-x-3 p-3 rounded-xl bg-teal-50/50 hover:bg-teal-100/50 transition-colors touch-manipulation">
+               className="flex items-center space-x-3 p-3 rounded-xl bg-purple-50/50 hover:bg-purple-100/50 transition-colors touch-manipulation">
             <RadioGroupItem
               value={option.value.toString()}
               id={`${question.id}-${option.value}`}
-              className="text-teal-600 border-teal-300 data-[state=checked]:bg-teal-600"
+              className="text-purple-600 border-purple-300 data-[state=checked]:bg-purple-600"
             />
             <Label
               htmlFor={`${question.id}-${option.value}`}
-              className="flex-1 cursor-pointer text-sm sm:text-base leading-relaxed text-center text-teal-700"
+              className="flex-1 cursor-pointer text-sm sm:text-base leading-relaxed text-center text-purple-700"
             >
               {option.label}
             </Label>
@@ -91,12 +91,12 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
     return (
       <div className="space-y-6">
         {/* 현재 값 표시 - 모바일에서 크게 */}
-        <div className="text-center bg-teal-50 rounded-2xl p-4">
-          <span className="text-3xl font-bold text-teal-600">
+        <div className="text-center bg-purple-50 rounded-2xl p-4">
+          <span className="text-3xl font-bold text-purple-600">
             {currentValue}
           </span>
           {question.labels && question.labels[currentValue] && (
-            <p className="text-sm text-teal-600/80 mt-2">
+            <p className="text-sm text-purple-600/80 mt-2">
               {question.labels[currentValue]}
             </p>
           )}
@@ -116,7 +116,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
 
         {/* 라벨 범위 표시 */}
         {question.labels && (
-          <div className="flex justify-between text-xs sm:text-sm text-teal-600/70 px-2">
+          <div className="flex justify-between text-xs sm:text-sm text-purple-600/70 px-2">
             <span>{question.labels[min] || min}</span>
             <span className="text-center flex-1">{question.labels[Math.floor((min + max) / 2)]}</span>
             <span>{question.labels[max] || max}</span>
@@ -143,11 +143,11 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
           min={question.min}
           max={question.max}
           placeholder={`${question.min || 0} ~ ${question.max || 100}`}
-          className="text-center text-xl font-semibold h-14 bg-teal-50/50 border-teal-200 focus:border-teal-400 text-teal-700 placeholder:text-teal-400"
+          className="text-center text-xl font-semibold h-14 bg-purple-50/50 border-purple-200 focus:border-purple-400 text-purple-700 placeholder:text-purple-400"
         />
         
         {question.min !== undefined && question.max !== undefined && (
-          <p className="text-sm text-teal-600/70 text-center">
+          <p className="text-sm text-purple-600/70 text-center">
             입력 범위: {question.min} ~ {question.max}
           </p>
         )}
@@ -159,7 +159,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
   const renderBMICalculator = () => {
     return (
       <div className="space-y-4">
-        <p className="text-center text-teal-600 p-6 bg-teal-50 rounded-xl">
+        <p className="text-center text-purple-600 p-6 bg-purple-50 rounded-xl">
           BMI 계산기 기능은 곧 추가될 예정입니다.
         </p>
       </div>
@@ -179,7 +179,7 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
         return renderBMICalculator();
       default:
         return (
-          <p className="text-center text-teal-500 p-6">
+          <p className="text-center text-purple-500 p-6">
             지원하지 않는 질문 타입입니다.
           </p>
         );
@@ -191,22 +191,22 @@ export function QuestionCard({ question, answer, onAnswerChange }: QuestionCardP
       <CardHeader className="pb-4 text-center">
         <div className="space-y-3">
           <div className="flex items-center justify-center gap-2">
-            <span className="text-xs font-medium text-teal-700 bg-gradient-to-r from-teal-100 to-teal-50 px-4 py-1.5 rounded-full">
+            <span className="text-xs font-medium text-purple-700 bg-gradient-to-r from-purple-100 to-purple-50 px-4 py-1.5 rounded-full">
               {question.category}
             </span>
             {question.required && (
-              <span className="text-xs font-medium text-teal-600 bg-teal-100 px-3 py-1.5 rounded-full">
+              <span className="text-xs font-medium text-purple-600 bg-purple-100 px-3 py-1.5 rounded-full">
                 필수
               </span>
             )}
           </div>
           
-          <CardTitle className="text-lg sm:text-xl leading-relaxed text-teal-800 px-2">
+          <CardTitle className="text-lg sm:text-xl leading-relaxed text-purple-800 px-2">
             {question.text}
           </CardTitle>
           
           {question.subText && (
-            <CardDescription className="text-sm text-teal-600/70 px-2">
+            <CardDescription className="text-sm text-purple-600/70 px-2">
               {question.subText}
             </CardDescription>
           )}

@@ -112,7 +112,7 @@ export function UserInfoForm({ onSubmit }: UserInfoFormProps) {
       <Button
         type="submit"
         disabled={!gender}
-        className="w-full h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
+        className="w-full h-14 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
       >
         테스트 시작하기
       </Button>

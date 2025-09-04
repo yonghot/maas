@@ -121,8 +121,8 @@ export default function MatchingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     );
   }
@@ -131,7 +131,7 @@ export default function MatchingPage() {
   const { remaining } = checkDailyLimit(dailyViewCount, userInfo.subscription);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50">
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-3">
@@ -145,7 +145,7 @@ export default function MatchingPage() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-full text-sm font-medium shadow-lg"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-500 text-white rounded-full text-sm font-medium shadow-lg"
                 >
                   <Crown className="w-4 h-4 animate-pulse" />
                   {userInfo.subscription.name}
@@ -220,8 +220,8 @@ export default function MatchingPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="text-center space-y-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto">
-                  <Lock className="w-8 h-8 text-teal-500 animate-pulse" />
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-100 to-purple-100 rounded-full flex items-center justify-center mx-auto">
+                  <Lock className="w-8 h-8 text-purple-500 animate-pulse" />
                 </div>
                 
                 <h3 className="text-2xl font-bold">일일 제한 도달</h3>
@@ -231,19 +231,19 @@ export default function MatchingPage() {
                 </p>
                 
                 {/* 프리미엄 혜택 */}
-                <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-lg p-4 text-left space-y-2">
-                  <p className="font-semibold text-teal-700 mb-2">프리미엄 혜택</p>
+                <div className="bg-gradient-to-r from-purple-50 to-purple-50 rounded-lg p-4 text-left space-y-2">
+                  <p className="font-semibold text-purple-700 mb-2">프리미엄 혜택</p>
                   <div className="space-y-1 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-teal-600 mt-0.5" />
+                      <Sparkles className="w-4 h-4 text-purple-600 mt-0.5" />
                       <span>모든 티어 프로필 무제한 열람</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-teal-600 mt-0.5" />
+                      <Sparkles className="w-4 h-4 text-purple-600 mt-0.5" />
                       <span>인스타그램 아이디 확인</span>
                     </div>
                     <div className="flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-teal-600 mt-0.5" />
+                      <Sparkles className="w-4 h-4 text-purple-600 mt-0.5" />
                       <span>상세 프로필 정보</span>
                     </div>
                   </div>
@@ -258,7 +258,7 @@ export default function MatchingPage() {
                     나중에
                   </Button>
                   <Button
-                    className="flex-1 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white shadow-lg"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 text-white shadow-lg"
                     onClick={() => router.push('/pricing')}
                   >
                     업그레이드

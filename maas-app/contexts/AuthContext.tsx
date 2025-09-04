@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           setUser(session.user);
           
-          // 로그인 성공 시 자동으로 프로필 페이지로 이동
-          if (event === 'SIGNED_IN') {
+          // OAuth 로그인 성공 시에만 자동 리다이렉트
+          if (event === 'SIGNED_IN' && !user) {
             // 테스트 결과가 있으면 결과 페이지로, 없으면 프로필로
             const testResult = localStorage.getItem('latestTestResult');
             if (testResult) {

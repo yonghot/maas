@@ -15,7 +15,7 @@ function PaymentFailContent() {
   const errorMessage = searchParams.get('message');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50 flex items-center justify-center p-4">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -69,14 +69,14 @@ function PaymentFailContent() {
             <div className="space-y-3">
               <Button
                 onClick={() => router.push('/pricing')}
-                className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white"
+                className="w-full bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 text-white"
               >
                 다시 시도하기
               </Button>
               <Button
                 variant="outline"
                 onClick={() => router.push('/')}
-                className="w-full border-teal-500 text-teal-600 hover:bg-teal-50"
+                className="w-full border-purple-500 text-purple-600 hover:bg-purple-50"
               >
                 홈으로 돌아가기
               </Button>
@@ -91,8 +91,8 @@ function PaymentFailContent() {
 export default function PaymentFailPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     }>
       <PaymentFailContent />

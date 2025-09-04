@@ -56,20 +56,20 @@ export default function ResultPage() {
             
             console.log('DB에서 프로필 로드 성공:', profile);
           } else if (!storeResult) {
-            // 프로필도 없고 store에도 데이터가 없으면 테스트 페이지로
-            console.log('프로필 없음, 테스트 페이지로 이동');
-            router.push('/test');
+            // 프로필도 없고 store에도 데이터가 없으면 홈으로 안내
+            console.log('프로필 없음, 홈으로 안내');
+            router.push('/?message=' + encodeURIComponent('아직 테스트를 진행하지 않으셨습니다. 매력도 테스트를 시작해보세요!'));
             return;
           }
         } else if (!storeResult) {
-          // 로그인하지 않았고 store에도 데이터가 없으면 테스트 페이지로
-          router.push('/test');
+          // 로그인하지 않았고 store에도 데이터가 없으면 홈으로 안내
+          router.push('/?message=' + encodeURIComponent('매력도 테스트를 먼저 진행해주세요!'));
           return;
         }
       } catch (error) {
         console.error('프로필 로드 오류:', error);
         if (!storeResult) {
-          router.push('/test');
+          router.push('/?message=' + encodeURIComponent('오류가 발생했습니다. 다시 테스트를 진행해보세요.'));
         }
       } finally {
         setLoading(false);
@@ -81,10 +81,10 @@ export default function ResultPage() {
 
   if (!mounted || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
-          <p className="text-teal-700 font-medium">결과를 불러오고 있습니다...</p>
+          <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+          <p className="text-purple-700 font-medium">결과를 불러오고 있습니다...</p>
         </div>
       </div>
     );
@@ -131,7 +131,7 @@ export default function ResultPage() {
       ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 p-4 safe-area-padding">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 p-4 safe-area-padding">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* 정규분포 차트 */}
         <NormalDistributionChart 
@@ -147,7 +147,7 @@ export default function ResultPage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-center"
         >
-          <h1 className="text-2xl sm:text-3xl font-bold text-teal-800 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-purple-800 mb-4">
             상세 분석 결과
           </h1>
           
@@ -165,7 +165,7 @@ export default function ResultPage() {
         >
           <Card className="shadow-xl border-0 backdrop-blur-lg bg-white/95">
             <CardHeader>
-              <CardTitle className="text-xl text-teal-800 flex items-center">
+              <CardTitle className="text-xl text-purple-800 flex items-center">
                 <UserCheck className="mr-2 h-5 w-5" />
                 비슷한 점수대 사람들의 특징
               </CardTitle>
@@ -254,7 +254,7 @@ export default function ResultPage() {
           {/* 레이더 차트 */}
           <Card className="shadow-xl border-0 backdrop-blur-lg bg-white/95">
             <CardHeader>
-              <CardTitle className="text-xl text-teal-800 flex items-center">
+              <CardTitle className="text-xl text-purple-800 flex items-center">
                 <BarChart3 className="mr-2 h-5 w-5" />
                 카테고리별 점수
               </CardTitle>
@@ -292,7 +292,7 @@ export default function ResultPage() {
           {/* 카테고리별 상세 점수 */}
           <Card className="shadow-xl border-0 backdrop-blur-lg bg-white/95">
             <CardHeader>
-              <CardTitle className="text-xl text-teal-800 flex items-center">
+              <CardTitle className="text-xl text-purple-800 flex items-center">
                 <Target className="mr-2 h-5 w-5" />
                 상세 분석
               </CardTitle>
@@ -307,11 +307,11 @@ export default function ResultPage() {
                   <div key={index} className="space-y-2">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium text-gray-700">{item.category}</span>
-                      <span className="text-sm font-bold text-teal-600">{item.score.toFixed(0)}/100</span>
+                      <span className="text-sm font-bold text-purple-600">{item.score.toFixed(0)}/100</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-teal-400 to-teal-600 h-2 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-purple-400 to-purple-600 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${percentage}%` }}
                       />
                     </div>
@@ -341,7 +341,7 @@ export default function ResultPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             onClick={() => router.push('/test')}
-            className="h-12 px-8 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium"
+            className="h-12 px-8 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium"
           >
             <RefreshCw className="mr-2 h-4 w-4" />
             다시 테스트하기
@@ -350,7 +350,7 @@ export default function ResultPage() {
           <Button
             onClick={() => router.push('/')}
             variant="outline"
-            className="h-12 px-8 border-teal-300 text-teal-600 hover:bg-teal-50"
+            className="h-12 px-8 border-purple-300 text-purple-600 hover:bg-purple-50"
           >
             <Home className="mr-2 h-4 w-4" />
             홈으로 돌아가기

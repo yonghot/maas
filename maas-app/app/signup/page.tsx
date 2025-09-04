@@ -87,7 +87,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -102,10 +102,10 @@ export default function SignupPage() {
               transition={{ delay: 0.2, type: "spring" }}
               className="flex justify-center mb-4"
             >
-              <UserPlus className="w-12 h-12 text-teal-600" />
+              <UserPlus className="w-12 h-12 text-purple-600" />
             </motion.div>
             
-            <CardTitle className="text-2xl font-bold text-teal-800">
+            <CardTitle className="text-2xl font-bold text-purple-800">
               회원가입
             </CardTitle>
             <CardDescription className="text-gray-600 mt-2">
@@ -119,12 +119,12 @@ export default function SignupPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="bg-teal-50 rounded-lg p-4 space-y-2"
+              className="bg-purple-50 rounded-lg p-4 space-y-2"
             >
-              <h3 className="font-semibold text-teal-800 mb-2">
+              <h3 className="font-semibold text-purple-800 mb-2">
                 회원가입 후 확인할 수 있는 정보
               </h3>
-              <ul className="space-y-1 text-sm text-teal-700">
+              <ul className="space-y-1 text-sm text-purple-700">
                 <li className="flex items-start">
                   <span className="mr-2">✓</span>
                   종합 점수 및 등급
@@ -210,7 +210,7 @@ export default function SignupPage() {
             <Button
               variant="outline"
               onClick={() => router.push('/test')}
-              className="w-full h-12 border-teal-300 text-teal-600 hover:bg-teal-50"
+              className="w-full h-12 border-purple-300 text-purple-600 hover:bg-purple-50"
             >
               테스트로 돌아가기
             </Button>
@@ -218,11 +218,11 @@ export default function SignupPage() {
             {/* 약관 안내 */}
             <p className="text-xs text-center text-gray-500 mt-4">
               가입 시{' '}
-              <a href="/terms" className="text-teal-600 hover:underline">
+              <a href="/terms" className="text-purple-600 hover:underline">
                 이용약관
               </a>
               {' '}및{' '}
-              <a href="/privacy" className="text-teal-600 hover:underline">
+              <a href="/privacy" className="text-purple-600 hover:underline">
                 개인정보처리방침
               </a>
               에 동의하게 됩니다.

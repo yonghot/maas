@@ -22,6 +22,49 @@ export default function SaveResultPage() {
           return;
         }
 
+        // 이메일 정보 처리 (소셜 로그인 대응)
+        const getUserEmail = (user: any) => {
+          // 1. 직접 이메일 필드 확인
+          if (user.email && user.email.includes('@')) {
+            return user.email;
+          }
+          
+          // 2. user_metadata에서 이메일 확인 (카카오 등)
+          if (user.user_metadata?.email && user.user_metadata.email.includes('@')) {
+            return user.user_metadata.email;
+          }
+          
+          // 3. identities에서 이메일 확인
+          if (user.identities && user.identities.length > 0) {
+            for (const identity of user.identities) {
+              if (identity.identity_data?.email && identity.identity_data.email.includes('@')) {
+                return identity.identity_data.email;
+              }
+            }
+          }
+          
+          // 4. 이메일 형식이 아닌 경우 변환 (카카오 ID 등)
+          let userIdentifier = user.email || user.user_metadata?.sub || user.id;
+          
+          // 이미 이메일 형식이면 그대로 반환
+          if (userIdentifier && userIdentifier.includes('@')) {
+            return userIdentifier;
+          }
+          
+          // 이메일 형식이 아니면 provider별로 변환
+          const provider = user.app_metadata?.provider || 'unknown';
+          if (provider === 'kakao') {
+            return `${userIdentifier}@kakao.user`;
+          } else if (provider === 'google') {
+            return `${userIdentifier}@google.user`;
+          } else {
+            return `${userIdentifier}@${provider}.user`;
+          }
+        };
+
+        const userEmail = getUserEmail(user);
+        console.log('📧 사용자 이메일:', userEmail, 'Provider:', user.app_metadata?.provider);
+
         // localStorage, sessionStorage, 쿠키에서 테스트 결과 가져오기
         let testDataStr = localStorage.getItem('test_result') || sessionStorage.getItem('test_result');
         
@@ -55,6 +98,7 @@ export default function SaveResultPage() {
                 
                 const profileData = {
                   user_id: user.id, // auth.users.id 직접 참조 (새 구조)
+                  email: userEmail, // 이메일 정보 추가
                   gender: userInfo.gender,
                   age: userInfo.age || null,
                   region: userInfo.region || 'seoul',
@@ -112,38 +156,21 @@ export default function SaveResultPage() {
             .single();
           
           if (existingProfile) {
-            // 기존 프로필이 있으면 결과 페이지로
+            // 기존 프로필이 있지만 이메일 정보가 없다면 업데이트
+            if (!existingProfile.email) {
+              console.log('📧 기존 프로필에 이메일 정보 추가');
+              await supabase
+                .from('profiles')
+                .update({ email: userEmail })
+                .eq('user_id', user.id);
+            }
+            
             console.log('✅ 기존 프로필 발견, 결과 페이지로 이동');
             router.push('/result');
           } else {
-            // 프로필도 없고 테스트 결과도 없음 - 기본 프로필 생성하고 테스트 페이지로 안내
-            console.log('❌ 프로필 없고 테스트 결과도 없음');
-            
-            // 빈 프로필 생성 (나중에 테스트 완료 시 업데이트)
-            const emptyProfileData = {
-              user_id: user.id, // auth.users.id 직접 참조 (새 구조)
-              gender: 'male', // 기본값
-              age: 25, // 기본값
-              region: 'seoul',
-              total_score: 0,
-              tier: 'F',
-              grade: 'F',
-              evaluation_data: {},
-              category_scores: {},
-              // Instagram 정보 profiles에 직접 저장 (NULL 허용)
-              instagram_id: null,
-              instagram_public: false,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            };
-
-            // 빈 프로필 저장
-            await supabase
-              .from('profiles')
-              .upsert(emptyProfileData, { onConflict: 'user_id' });
-
-            console.log('✅ 빈 프로필 생성 완료, 테스트 페이지로 안내');
-            router.push('/signup-result?message=소셜 로그인이 완료되었습니다. 이제 매력도 테스트를 진행해보세요!');
+            // 프로필 없고 테스트 결과도 없음 - 로그인은 성공했으니 홈으로 안내
+            console.log('⚠️ 프로필 없고 테스트 결과도 없음 - 홈으로 안내');
+            router.push('/?message=' + encodeURIComponent('소셜 로그인이 완료되었습니다. 매력도 테스트를 진행해보세요!'));
           }
           return;
         }
@@ -160,6 +187,7 @@ export default function SaveResultPage() {
         // 프로필 데이터 생성 (새 구조: auth.users 직접 참조)
         const profileData = {
           user_id: user.id, // auth.users.id 직접 참조 (public.users 제거됨)
+          email: userEmail, // 이메일 정보 추가
           gender: userInfo.gender,
           age: userInfo.age || null,
           region: userInfo.region || 'seoul',
@@ -220,10 +248,10 @@ export default function SaveResultPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4">
       <div className="text-center">
-        <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
-        <p className="text-teal-700 font-medium">결과를 저장하고 있습니다...</p>
+        <Loader2 className="w-12 h-12 text-purple-600 animate-spin mx-auto mb-4" />
+        <p className="text-purple-700 font-medium">결과를 저장하고 있습니다...</p>
       </div>
     </div>
   );

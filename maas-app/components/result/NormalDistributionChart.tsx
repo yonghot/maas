@@ -105,7 +105,7 @@ export default function NormalDistributionChart({ score, gender, animate = true 
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
                 >
-                  <h3 className="text-5xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+                  <h3 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
                     {animatedScore.toFixed(1)}점
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">10점 만점</p>
@@ -258,7 +258,7 @@ export default function NormalDistributionChart({ score, gender, animate = true 
                 className="bg-gray-50 rounded-lg p-4"
               >
                 <div className="flex items-start gap-2">
-                  <TrendingUp className="w-4 h-4 text-teal-600 mt-0.5" />
+                  <TrendingUp className="w-4 h-4 text-purple-600 mt-0.5" />
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium text-gray-700">통계적 의미</p>
                     <p className="text-xs text-gray-600 leading-relaxed">

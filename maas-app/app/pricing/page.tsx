@@ -56,19 +56,19 @@ export default function PricingPage() {
     {
       ...subscriptionPlans.basic,
       popular: true,
-      color: 'teal',
+      color: 'purple',
       badge: '50% 할인'
     },
     {
       ...subscriptionPlans.premium,
       popular: false,
-      color: 'cyan',
+      color: 'purple',
       badge: '준비중'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50">
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
@@ -94,7 +94,7 @@ export default function PricingPage() {
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent"
+            className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-500 to-purple-500 bg-clip-text text-transparent"
           >
             더 많은 인연을 만나보세요
           </motion.h1>
@@ -120,25 +120,25 @@ export default function PricingPage() {
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                  <span className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
+                  <span className="bg-gradient-to-r from-purple-500 to-purple-500 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-lg">
                     가장 인기
                   </span>
                 </div>
               )}
               
-              <Card className={`h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${plan.popular ? 'ring-2 ring-teal-500 shadow-xl' : ''}`}>
+              <Card className={`h-full transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${plan.popular ? 'ring-2 ring-purple-500 shadow-xl' : ''}`}>
                 <CardHeader className="text-center pb-6">
                   <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
                     plan.id === 'free' ? 'bg-gray-100' :
-                    plan.id === 'basic' ? 'bg-gradient-to-br from-teal-100 to-cyan-100' :
-                    'bg-gradient-to-br from-mint-100 to-teal-100'
+                    plan.id === 'basic' ? 'bg-gradient-to-br from-purple-100 to-purple-100' :
+                    'bg-gradient-to-br from-purple-100 to-purple-100'
                   }`}>
                     {plan.id === 'free' ? (
                       <Zap className="w-8 h-8 text-gray-600" />
                     ) : plan.id === 'basic' ? (
-                      <Sparkles className="w-8 h-8 text-teal-500 animate-pulse" />
+                      <Sparkles className="w-8 h-8 text-purple-500 animate-pulse" />
                     ) : (
-                      <Crown className="w-8 h-8 text-cyan-500 animate-pulse" />
+                      <Crown className="w-8 h-8 text-purple-500 animate-pulse" />
                     )}
                   </div>
                   
@@ -209,8 +209,8 @@ export default function PricingPage() {
                           plan.status === 'coming_soon'
                             ? 'bg-gray-300 cursor-not-allowed'
                             : plan.id === 'premium' 
-                            ? 'bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 shadow-lg hover:shadow-xl'
-                            : 'bg-gradient-to-r from-teal-500 to-mint-500 hover:from-teal-600 hover:to-mint-600 shadow-lg hover:shadow-xl'
+                            ? 'bg-gradient-to-r from-purple-400 to-purple-600 hover:from-purple-500 hover:to-purple-700 shadow-lg hover:shadow-xl'
+                            : 'bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 shadow-lg hover:shadow-xl'
                         } text-white`}
                         onClick={() => plan.status !== 'coming_soon' && handlePayment(plan.id)}
                         disabled={loading || paymentLoading || plan.status === 'coming_soon'}
@@ -242,7 +242,7 @@ export default function PricingPage() {
                     >
                       <Button
                         variant="outline"
-                        className="w-full border-2 border-teal-500 text-teal-600 hover:bg-teal-50 transition-colors"
+                        className="w-full border-2 border-purple-500 text-purple-600 hover:bg-purple-50 transition-colors"
                         onClick={() => router.push('/matching')}
                       >
                         무료로 시작

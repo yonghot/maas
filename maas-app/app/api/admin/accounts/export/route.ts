@@ -34,7 +34,7 @@ function generateExcelData(accounts: any[]) {
     account.instagram_id || '-',
     account.instagram_public ? '공개' : '비공개',
     account.last_evaluated_at ? new Date(account.last_evaluated_at).toLocaleDateString('ko-KR') : '-',
-    new Date(account.auth_created_at).toLocaleDateString('ko-KR'),
+    account.auth_created_at ? new Date(account.auth_created_at).toLocaleDateString('ko-KR') : '-',
     account.last_sign_in_at ? new Date(account.last_sign_in_at).toLocaleDateString('ko-KR') : '-'
   ])
 
@@ -73,24 +73,16 @@ export async function GET(request: NextRequest) {
       throw profilesError
     }
 
-    // auth.users 정보 추가
-    const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
+    console.log(`📊 조회 완료: profiles ${profilesData?.length}개`)
 
-    if (authError) {
-      throw authError
-    }
-
-    console.log(`📊 조회 완료: profiles ${profilesData?.length}개, auth.users ${authUsers.users.length}개`)
-
-    // 데이터 조인
+    // 데이터 포맷팅 (auth.admin API 사용하지 않음)
     const combinedData = profilesData?.map(profile => {
-      const authUser = authUsers.users.find(u => u.id === profile.user_id)
       return {
         user_id: profile.user_id,
-        email: authUser?.email || 'N/A',
-        auth_created_at: authUser?.created_at,
-        last_sign_in_at: authUser?.last_sign_in_at,
-        provider: authUser?.app_metadata?.provider || 'unknown',
+        email: profile.email || 'N/A',
+        auth_created_at: profile.created_at,
+        last_sign_in_at: profile.updated_at,
+        provider: 'oauth',
         
         gender: profile.gender,
         age: profile.age,

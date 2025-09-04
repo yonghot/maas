@@ -1,16 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { UserInfo, UserAnswer, TestResult, Gender, UserLead } from '@/lib/types';
+import { UserInfo, UserAnswer, TestResult, Gender } from '@/lib/types';
 
 interface TestState {
   // 사용자 정보
   userInfo: UserInfo | null;
   setUserInfo: (info: UserInfo) => void;
   
-  // 리드 정보 (연락처 정보)
-  userLead: UserLead | null;
-  setUserLead: (lead: UserLead) => void;
-  hasSubmittedLead: boolean;  // 리드 정보 제출 여부
+  // OAuth 로그인 상태 추적용 (레거시)
+  hasSubmittedLead: boolean;  // OAuth 로그인 완료 여부
   
   // 답변 관리
   answers: UserAnswer[];
@@ -38,7 +36,6 @@ export const useTestStore = create<TestState>()(
     (set) => ({
       // 초기 상태
       userInfo: null,
-      userLead: null,
       hasSubmittedLead: false,
       answers: [],
       currentQuestionIndex: 0,
@@ -48,11 +45,6 @@ export const useTestStore = create<TestState>()(
       // 사용자 정보 설정
       setUserInfo: (info) => set({ userInfo: info }),
       
-      // 리드 정보 설정
-      setUserLead: (lead) => set({ 
-        userLead: lead, 
-        hasSubmittedLead: true 
-      }),
       
       // 답변 관리
       setAnswer: (answer) => set((state) => {
@@ -87,7 +79,6 @@ export const useTestStore = create<TestState>()(
       // 테스트 초기화
       resetTest: () => set({
         userInfo: null,
-        userLead: null,
         hasSubmittedLead: false,
         answers: [],
         currentQuestionIndex: 0,
@@ -99,7 +90,6 @@ export const useTestStore = create<TestState>()(
       name: 'maas-test-storage',
       partialize: (state) => ({
         userInfo: state.userInfo,
-        userLead: state.userLead,
         hasSubmittedLead: state.hasSubmittedLead,
         answers: state.answers,
         currentQuestionIndex: state.currentQuestionIndex,

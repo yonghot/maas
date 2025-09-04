@@ -274,7 +274,7 @@ export default function ScoringManagementPage() {
             <Button 
               onClick={saveWeights} 
               disabled={isSaving}
-              className="bg-teal-600 hover:bg-teal-700 text-white"
+              className="bg-purple-600 hover:bg-purple-700 text-white"
             >
               {isSaving ? (
                 <>
@@ -423,7 +423,7 @@ export default function ScoringManagementPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-lg font-semibold">최종 점수</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl font-bold text-teal-600">{maleResult}점</span>
+                        <span className="text-2xl font-bold text-purple-600">{maleResult}점</span>
                         <Badge className={getGrade(maleResult).color}>{getGrade(maleResult).grade}급</Badge>
                       </div>
                     </div>

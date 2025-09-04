@@ -60,28 +60,6 @@ export interface UserInfo {
   region?: string;
 }
 
-// 리드 정보 (연락처 정보) - 레거시, 인스타그램 회원가입으로 대체됨
-export interface UserLead {
-  name: string;
-  phone: string;
-  email?: string;
-  age: number;
-  gender: Gender;
-  region?: string;
-  // 동의 항목
-  privacyConsent: boolean;         // 개인정보 수집 동의 (필수)
-  marketingConsent?: boolean;       // 마케팅 수신 동의 (선택)
-  // 메타 정보
-  submittedAt?: Date;
-  testId?: string;                 // 연결된 테스트 ID
-}
-
-// 인스타그램 기반 회원가입
-export interface UserAuth {
-  instagramId: string;              // 인스타그램 아이디
-  password: string;                 // 비밀번호
-  instagramPublic: boolean;         // 인스타그램 공개 여부 (기본값: false)
-}
 
 // 사용자 프로필 (DB 저장용)
 export interface UserProfile {

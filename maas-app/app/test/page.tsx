@@ -158,11 +158,11 @@ export default function TestPage() {
   // 사용자 정보 입력 화면
   if (showUserForm) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4 safe-area-padding">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
             <CardHeader className="pb-4 text-center">
-              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
                 나의 결혼 점수는?
               </CardTitle>
             </CardHeader>
@@ -178,13 +178,13 @@ export default function TestPage() {
   // 질문이 없는 경우
   if (currentQuestions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4 safe-area-padding">
         <div className="w-full max-w-md">
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center space-y-4">
-                <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
-                <p className="text-center text-teal-600/80">질문을 불러오는 중...</p>
+                <Loader2 className="h-10 w-10 animate-spin text-purple-600" />
+                <p className="text-center text-purple-600/80">질문을 불러오는 중...</p>
               </div>
             </CardContent>
           </Card>
@@ -196,19 +196,19 @@ export default function TestPage() {
   const progress = calculateProgress();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30">
       {/* 상단 고정 헤더 */}
       <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg shadow-md">
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg sm:text-xl font-bold text-teal-700">
+            <h1 className="text-lg sm:text-xl font-bold text-purple-700">
               나의 결혼 점수는?
             </h1>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleRestart}
-              className="text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+              className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
             >
               다시 시작
             </Button>
@@ -217,12 +217,12 @@ export default function TestPage() {
           {/* 진행률 바 */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-medium">
-              <span className="text-teal-600/70">진행률</span>
-              <span className="text-teal-600">
+              <span className="text-purple-600/70">진행률</span>
+              <span className="text-purple-600">
                 {Math.round(progress)}%
               </span>
             </div>
-            <Progress value={progress} className="h-2 bg-teal-100" />
+            <Progress value={progress} className="h-2 bg-purple-100" />
           </div>
         </div>
       </div>
@@ -240,7 +240,7 @@ export default function TestPage() {
               <div className="relative">
                 {/* 질문 번호 */}
                 <div className="absolute -left-2 -top-2 z-10">
-                  <div className="w-8 h-8 bg-teal-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">
+                  <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-md">
                     {index + 1}
                   </div>
                 </div>
@@ -259,7 +259,7 @@ export default function TestPage() {
       </div>
 
       {/* 하단 고정 완료 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-teal-100 safe-area-padding">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-purple-100 safe-area-padding">
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex flex-col gap-3">
             {error && (
@@ -271,7 +271,7 @@ export default function TestPage() {
             <Button
               onClick={handleViewResults}
               disabled={!isAllAnswered() || saving}
-              className="w-full h-14 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
+              className="w-full h-14 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white text-lg font-medium shadow-lg disabled:opacity-50 transition-all touch-manipulation"
             >
               {saving ? (
                 <>
@@ -286,7 +286,7 @@ export default function TestPage() {
             </Button>
             
             {!isAllAnswered() && (
-              <p className="text-center text-xs text-teal-600/70">
+              <p className="text-center text-xs text-purple-600/70">
                 모든 필수 질문에 답변해주세요
               </p>
             )}
@@ -302,7 +302,7 @@ export default function TestPage() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={scrollToTop}
-            className="fixed bottom-24 right-4 z-30 w-12 h-12 bg-teal-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-teal-600 transition-colors touch-manipulation"
+            className="fixed bottom-24 right-4 z-30 w-12 h-12 bg-purple-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-purple-600 transition-colors touch-manipulation"
           >
             <ChevronUp className="w-6 h-6" />
           </motion.button>

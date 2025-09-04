@@ -45,7 +45,13 @@ export default function SignupResultPage() {
     
     // 결과가 없고 특별한 안내 메시지도 없으면 테스트 페이지로 리다이렉트
     if (!result && !messageParam) {
-      router.push('/test');
+      console.log('⚠️ signup-result: 테스트 결과 없음, /test로 리다이렉트 시도');
+      console.log('현재 URL:', window.location.href);
+      console.log('result:', result);
+      console.log('messageParam:', messageParam);
+      
+      // 잠시 비활성화하여 상황 파악
+      // router.push('/test');
     }
   }, [result, router]);
 
@@ -195,7 +201,7 @@ export default function SignupResultPage() {
   // 소셜 로그인 후 테스트 필요한 경우
   if (isPostLogin) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4 safe-area-padding">
         <div className="w-full max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -234,7 +240,7 @@ export default function SignupResultPage() {
                 
                 <Button
                   onClick={() => router.push('/test')}
-                  className="w-full h-12 bg-teal-600 hover:bg-teal-700 text-white font-medium flex items-center justify-center"
+                  className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-medium flex items-center justify-center"
                 >
                   테스트 시작하기
                   <ChevronRight className="w-5 h-5 ml-2" />
@@ -254,7 +260,7 @@ export default function SignupResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center p-4 safe-area-padding">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center p-4 safe-area-padding">
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -264,9 +270,9 @@ export default function SignupResultPage() {
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95 mb-4">
             <CardHeader className="text-center pb-4">
               <div className="flex justify-center mb-3">
-                <Trophy className="w-12 h-12 text-teal-500" />
+                <Trophy className="w-12 h-12 text-purple-500" />
               </div>
-              <CardTitle className="text-2xl font-bold text-teal-800">
+              <CardTitle className="text-2xl font-bold text-purple-800">
                 테스트 완료!
               </CardTitle>
               <p className="text-base text-gray-600 mt-3">
@@ -274,11 +280,11 @@ export default function SignupResultPage() {
               </p>
             </CardHeader>
             <CardContent>
-              <div className="bg-teal-50 rounded-lg p-4 mb-4">
-                <p className="text-center text-teal-700 text-sm font-medium">
+              <div className="bg-purple-50 rounded-lg p-4 mb-4">
+                <p className="text-center text-purple-700 text-sm font-medium">
                   회원가입 후 확인할 수 있는 정보:
                 </p>
-                <ul className="mt-2 space-y-1 text-sm text-teal-600">
+                <ul className="mt-2 space-y-1 text-sm text-purple-600">
                   <li className="flex items-center">
                     <span className="mr-2">✓</span> 종합 점수 및 백분위수
                   </li>
@@ -301,7 +307,7 @@ export default function SignupResultPage() {
 
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95">
             <CardHeader className="text-center pb-4">
-              <CardTitle className="text-xl font-bold text-teal-800">
+              <CardTitle className="text-xl font-bold text-purple-800">
                 결과 보기
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">
@@ -325,7 +331,7 @@ export default function SignupResultPage() {
                       value={instagramId}
                       onChange={handleInstagramIdChange}
                       required
-                      className="pl-14 h-12 border-gray-300 focus:border-teal-500"
+                      className="pl-14 h-12 border-gray-300 focus:border-purple-500"
                     />
                   </div>
                   <p className="text-xs text-gray-500">
@@ -336,7 +342,7 @@ export default function SignupResultPage() {
                 <div className="flex items-center justify-between space-x-3 bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center space-x-3">
                     {isPublic ? (
-                      <Eye className="h-5 w-5 text-teal-600" />
+                      <Eye className="h-5 w-5 text-purple-600" />
                     ) : (
                       <EyeOff className="h-5 w-5 text-gray-400" />
                     )}
@@ -355,7 +361,7 @@ export default function SignupResultPage() {
                     id="public-toggle"
                     checked={isPublic}
                     onCheckedChange={setIsPublic}
-                    className="data-[state=checked]:bg-teal-600"
+                    className="data-[state=checked]:bg-purple-600"
                   />
                 </div>
               </div>
@@ -402,7 +408,7 @@ export default function SignupResultPage() {
                 이미 계정이 있으신가요?{' '}
                 <button
                   onClick={() => router.push('/login')}
-                  className="text-teal-600 hover:underline font-medium"
+                  className="text-purple-600 hover:underline font-medium"
                 >
                   로그인
                 </button>

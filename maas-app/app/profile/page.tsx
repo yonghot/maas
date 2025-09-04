@@ -107,8 +107,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-500" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
       </div>
     );
   }
@@ -117,8 +117,12 @@ export default function ProfilePage() {
     return null;
   }
 
-  const tierInfo = tierSystem[profile.tier as keyof typeof tierSystem];
-  const tierEmoji = tierEmojis[profile.tier as keyof typeof tierEmojis];
+  const tierInfo = tierSystem[profile.tier as keyof typeof tierSystem] || {
+    name: '알 수 없음',
+    description: '티어 정보를 찾을 수 없습니다.',
+    color: '#6B7280'
+  };
+  const tierEmoji = tierEmojis[profile.tier as keyof typeof tierEmojis] || '❓';
 
   // 레이더 차트 데이터 준비
   const chartData = Object.entries(profile.category_scores).map(([key, value]) => ({
@@ -137,7 +141,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-teal-50 to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-purple-50 to-purple-50">
       {/* 헤더 */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
         <div className="container mx-auto px-4 py-4">
@@ -219,7 +223,7 @@ export default function ProfilePage() {
               {/* 인스타그램 정보 */}
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <Instagram className="w-5 h-5 text-teal-500" />
+                  <Instagram className="w-5 h-5 text-purple-500" />
                   <div>
                     <p className="font-medium">@{profile.instagram_id}</p>
                     <p className="text-sm text-gray-500">
@@ -232,7 +236,7 @@ export default function ProfilePage() {
                   size="sm"
                   onClick={toggleInstagramVisibility}
                   disabled={updating}
-                  className="border-teal-500 text-teal-600 hover:bg-teal-50"
+                  className="border-purple-500 text-purple-600 hover:bg-purple-50"
                 >
                   {updating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -254,7 +258,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4 py-4">
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-2">총점</p>
-                  <p className="text-3xl font-bold text-teal-600">{profile.total_score}점</p>
+                  <p className="text-3xl font-bold text-purple-600">{profile.total_score}점</p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-500 mb-2">백분위</p>
@@ -310,7 +314,7 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-2">
                       <div className="w-24 bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-gradient-to-r from-teal-500 to-cyan-500 h-2 rounded-full"
+                          className="bg-gradient-to-r from-purple-500 to-purple-500 h-2 rounded-full"
                           style={{ width: `${score}%` }}
                         />
                       </div>
@@ -341,7 +345,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={() => router.push('/test')}
                   disabled={!canReevaluate()}
-                  className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white"
+                  className="w-full bg-gradient-to-r from-purple-500 to-purple-500 hover:from-purple-600 hover:to-purple-600 text-white"
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   {canReevaluate() ? '재평가 받기' : '재평가는 30일 후 가능'}

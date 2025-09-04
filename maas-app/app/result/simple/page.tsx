@@ -34,7 +34,7 @@ function SimpleResultContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 py-8">
       <div className="max-w-4xl mx-auto px-4 space-y-6">
         {/* 정규분포 차트 */}
         <NormalDistributionChart 
@@ -51,7 +51,7 @@ function SimpleResultContent() {
         >
           <Card className="shadow-2xl border-0 backdrop-blur-lg bg-white/95 max-w-md mx-auto">
             <CardHeader className="text-center pb-6">
-              <CardTitle className="text-xl font-bold text-teal-800 mb-4">
+              <CardTitle className="text-xl font-bold text-purple-800 mb-4">
                 추가 정보
               </CardTitle>
 
@@ -68,8 +68,8 @@ function SimpleResultContent() {
             </CardHeader>
 
             <CardContent className="space-y-4">
-              <div className="bg-teal-50 rounded-xl p-4 text-center">
-                <p className="text-sm text-teal-700">
+              <div className="bg-purple-50 rounded-xl p-4 text-center">
+                <p className="text-sm text-purple-700">
                   <span className="font-bold">회원가입</span>하면 카테고리별 상세 점수와<br />
                   맞춤형 개선 방안을 확인할 수 있습니다.
                 </p>
@@ -77,7 +77,7 @@ function SimpleResultContent() {
 
               <Button
                 onClick={() => router.push('/signup')}
-                className="w-full h-12 bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium"
+                className="w-full h-12 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium"
               >
                 <UserPlus className="mr-2 h-4 w-4" />
                 결과 보기
@@ -87,7 +87,7 @@ function SimpleResultContent() {
                 <Button
                   variant="outline"
                   onClick={() => router.push('/test')}
-                  className="h-12 border-teal-300 text-teal-600 hover:bg-teal-50"
+                  className="h-12 border-purple-300 text-purple-600 hover:bg-purple-50"
                 >
                   <RefreshCw className="mr-2 h-4 w-4" />
                   다시 하기
@@ -96,7 +96,7 @@ function SimpleResultContent() {
                 <Button
                   variant="outline"
                   onClick={() => router.push('/')}
-                  className="h-12 border-teal-300 text-teal-600 hover:bg-teal-50"
+                  className="h-12 border-purple-300 text-purple-600 hover:bg-purple-50"
                 >
                   <Home className="mr-2 h-4 w-4" />
                   홈으로
@@ -113,10 +113,10 @@ function SimpleResultContent() {
 export default function SimpleResultPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-b from-teal-50 via-white to-teal-50/30 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-purple-50 via-white to-purple-50/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
-          <p className="text-teal-600">결과를 불러오는 중...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-purple-600">결과를 불러오는 중...</p>
         </div>
       </div>
     }>
