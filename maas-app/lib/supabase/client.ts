@@ -1,10 +1,22 @@
 import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from './database.types';
 
+// 클라이언트 사이드 폴백 값 설정 (Vercel 빌드 시 환경 변수가 주입되지 않을 경우 대비)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://hvpyqchgimnzaotwztuy.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cHlxY2hnaW1uemFvdHd6dHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NTY4ODgsImV4cCI6MjA3MTAzMjg4OH0.8prtIUesStj4xNabIKY3yVlrbvWseAYIUM11rk7KZX4';
+
 export function createClient() {
+  // 클라이언트 사이드에서 환경 변수 상태 확인
+  if (typeof window !== 'undefined') {
+    console.log('🔍 클라이언트 Supabase 초기화:', {
+      urlSource: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'ENV' : 'FALLBACK',
+      keySource: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'ENV' : 'FALLBACK'
+    });
+  }
+  
   return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       auth: {
         flowType: 'pkce',
