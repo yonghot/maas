@@ -115,7 +115,22 @@
       "Read(/D:\\Cursor\\maas\\maas-app/**)",
       "Read(/D:\\Cursor\\maas\\maas-app/**)",
       "Read(/D:\\Cursor\\maas\\maas-app\\app/**)",
-      "Read(/D:\\Cursor\\maas\\maas-app\\app\\test/**)"
+      "Read(/D:\\Cursor\\maas\\maas-app\\app\\test/**)",
+      "Read(/D:\\Cursor\\maas\\maas-app/**)",
+      "Read(/D:\\Cursor\\maas\\maas-app\\app\\auth\\callback/**)",
+      "Read(/D:\\Cursor\\maas\\maas-app/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/D:\\Cursor\\maas/**)",
+      "Read(/C:\\/**)",
+      "Read(/C:\\Users\\user\\.claude\\commands\\sc/**)",
+      "Read(/C:\\Users\\user\\.claude/**)"
     ],
     "deny": [],
     "additionalDirectories": [

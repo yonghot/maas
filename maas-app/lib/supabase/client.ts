@@ -37,7 +37,10 @@ export function createClient() {
             
             // 쿠키에도 저장 (PKCE 지원)
             const maxAge = 60 * 60 * 24 * 7; // 7일
-            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+            // HTTPS 환경에서는 Secure 플래그 추가
+            const isSecure = window.location.protocol === 'https:';
+            const secureFlag = isSecure ? '; Secure' : '';
+            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax${secureFlag}`;
           },
           removeItem: (key: string) => {
             if (typeof window === 'undefined') return;
@@ -46,7 +49,9 @@ export function createClient() {
             window.localStorage.removeItem(key);
             
             // 쿠키에서도 제거
-            document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+            const isSecure = window.location.protocol === 'https:';
+            const secureFlag = isSecure ? '; Secure' : '';
+            document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secureFlag}`;
           }
         }
       }

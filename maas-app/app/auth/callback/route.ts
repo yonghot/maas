@@ -51,26 +51,46 @@ export async function GET(request: Request) {
     )
     
     try {
-      // 세션 교환 시도
+      // 세션 교환 시도 전 PKCE 쿠키 상태 확인
       console.log('🔄 세션 교환 시작...')
+      
+      // 모든 쿠키 확인 (디버깅용)
+      const allCookies = cookieStore.getAll()
+      const authCookies = allCookies.filter(c => 
+        c.name.includes('auth') || 
+        c.name.includes('pkce') || 
+        c.name.includes('code') ||
+        c.name.includes('sb-')
+      )
+      console.log('🍪 인증 관련 쿠키:', authCookies.map(c => ({ name: c.name, hasValue: !!c.value })))
+      
       const { data, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
       
       if (sessionError) {
         console.error('❌ 세션 교환 실패:', sessionError.message)
         
-        // PKCE 오류인 경우 다른 방법 시도
-        if (sessionError.message?.includes('code verifier')) {
-          console.log('⚠️ PKCE 검증 실패, 대체 방법 시도...')
+        // PKCE 오류인 경우 상세 정보 로깅
+        if (sessionError.message?.includes('code verifier') || 
+            sessionError.message?.includes('PKCE') ||
+            sessionError.message?.includes('Invalid API key')) {
+          console.log('⚠️ PKCE/API 키 관련 오류 감지')
           
-          // 쿠키에서 PKCE 코드 직접 확인
-          const allCookies = cookieStore.getAll()
-          const pkceCookies = allCookies.filter(c => 
-            c.name.includes('pkce') || 
-            c.name.includes('code-verifier') ||
-            c.name.includes('sb-')
+          // 환경 정보 확인
+          console.log('📍 환경 정보:')
+          console.log('- URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 30) + '...')
+          console.log('- Anon Key:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.substring(0, 20) + '...')
+          console.log('- Origin:', origin)
+          console.log('- Protocol:', request.url.startsWith('https') ? 'HTTPS' : 'HTTP')
+          
+          // PKCE 쿠키가 없는 경우 사용자에게 안내
+          const hasPKCECookie = authCookies.some(c => 
+            c.name.includes('pkce') || c.name.includes('code-verifier')
           )
           
-          console.log('🔍 PKCE 관련 쿠키:', pkceCookies.map(c => c.name))
+          if (!hasPKCECookie) {
+            console.error('❌ PKCE 쿠키 없음 - 브라우저 설정 또는 네트워크 문제')
+            return NextResponse.redirect(`${origin}/signup-result?error=pkce_cookie_missing&desc=${encodeURIComponent('인증 쿠키가 유실되었습니다. 브라우저 쿠키가 활성화되어 있는지 확인해주세요.')}`)
+          }
         }
         
         return NextResponse.redirect(`${origin}/signup-result?error=session_failed&desc=${encodeURIComponent(sessionError.message)}`)

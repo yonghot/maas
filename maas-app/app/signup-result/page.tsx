@@ -28,13 +28,29 @@ export default function SignupResultPage() {
     const messageParam = params.get('message');
     
     if (errorParam) {
+      const errorDesc = params.get('desc');
+      
       if (errorParam === 'auth_failed') {
         setError('소셜 로그인 인증에 실패했습니다. 다시 시도해주세요.');
       } else if (errorParam === 'session_failed') {
-        setError('세션 생성에 실패했습니다. 다시 시도해주세요.');
+        // Invalid API key 에러 특별 처리
+        if (errorDesc?.includes('Invalid API key')) {
+          setError('인증 서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+          console.error('❌ Supabase API 키 오류 감지:', errorDesc);
+        } else {
+          setError('세션 생성에 실패했습니다. 다시 시도해주세요.');
+        }
+      } else if (errorParam === 'pkce_cookie_missing') {
+        setError('브라우저 쿠키가 차단되어 있습니다. 쿠키를 활성화하고 다시 시도해주세요.');
       } else if (errorParam === 'no_test_data') {
         setError('테스트 결과를 찾을 수 없습니다. 테스트를 다시 진행해주세요.');
+      } else {
+        // 기타 에러
+        setError(errorDesc ? decodeURIComponent(errorDesc) : '알 수 없는 오류가 발생했습니다.');
       }
+      
+      // 에러 로그
+      console.error(`❌ OAuth 에러: ${errorParam}`, errorDesc);
     }
     
     // URL에서 message 파라미터가 있으면 표시 (에러가 아닌 안내 메시지)

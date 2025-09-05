@@ -205,9 +205,9 @@ rounded-full: 9999px                   /* 원형 */
 ### Button Component
 ```tsx
 /* Variants */
-- default: 민트 그라데이션 배경, 흰색 텍스트
-- secondary: 연한 민트 배경, 진한 민트 텍스트
-- outline: 투명 배경, 민트 테두리
+- default: 퍼플 그라데이션 배경, 흰색 텍스트
+- secondary: 연한 라벤더 배경, 진한 퍼플 텍스트  
+- outline: 투명 배경, 퍼플 테두리
 - ghost: 호버시만 배경색
 - link: 밑줄 텍스트 스타일
 
@@ -241,11 +241,11 @@ rounded-full: 9999px                   /* 원형 */
 ### Input Component
 ```css
 /* 기본 스타일 */
-- 배경: 연한 민트 (--input)
-- 테두리: 민트빛 (--border)
+- 배경: 연한 라벤더 (--input)
+- 테두리: 퍼플빛 (--border)
 - 텍스트 정렬: center
 - 폰트 크기: 16px (iOS 줌 방지)
-- 포커스: 민트 링
+- 포커스: 퍼플 링
 ```
 
 ### Badge Component
@@ -585,7 +585,7 @@ fill="currentColor": 채움
 
 ### 색상 적용 예시
 ```tsx
-/* 민트 그라데이션 배경 */
+/* 퍼플 그라데이션 배경 */
 className="bg-gradient-to-b from-purple-50 via-white to-purple-50/30"
 
 /* 텍스트 그라데이션 */
