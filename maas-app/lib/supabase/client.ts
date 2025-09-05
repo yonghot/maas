@@ -27,16 +27,23 @@ export function createClient() {
           getItem: (key: string) => {
             if (typeof window === 'undefined') return null;
             
-            // 먼저 localStorage 확인
-            const localStorageValue = window.localStorage.getItem(key);
-            if (localStorageValue) return localStorageValue;
-            
-            // 쿠키에서도 확인
-            const cookies = document.cookie.split('; ');
-            const cookie = cookies.find(c => c.startsWith(`${key}=`));
-            if (cookie) {
-              const value = cookie.split('=')[1];
-              return decodeURIComponent(value);
+            try {
+              // 먼저 localStorage 확인
+              const localStorageValue = window.localStorage.getItem(key);
+              if (localStorageValue) return localStorageValue;
+              
+              // 쿠키에서도 확인 - document.cookie를 직접 읽기
+              const cookieString = document.cookie;
+              if (cookieString) {
+                const cookies = cookieString.split('; ');
+                const cookie = cookies.find(c => c.startsWith(`${key}=`));
+                if (cookie) {
+                  const value = cookie.split('=')[1];
+                  return decodeURIComponent(value);
+                }
+              }
+            } catch (error) {
+              console.warn('Storage getItem 오류:', key, error);
             }
             
             return null;
@@ -44,26 +51,41 @@ export function createClient() {
           setItem: (key: string, value: string) => {
             if (typeof window === 'undefined') return;
             
-            // localStorage에 저장
-            window.localStorage.setItem(key, value);
-            
-            // 쿠키에도 저장 (PKCE 지원)
-            const maxAge = 60 * 60 * 24 * 7; // 7일
-            // HTTPS 환경에서는 Secure 플래그 추가
-            const isSecure = window.location.protocol === 'https:';
-            const secureFlag = isSecure ? '; Secure' : '';
-            document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax${secureFlag}`;
+            try {
+              // localStorage에 저장
+              window.localStorage.setItem(key, value);
+              
+              // 쿠키에도 저장 (PKCE 지원)
+              const maxAge = 60 * 60 * 24 * 7; // 7일
+              const isSecure = window.location.protocol === 'https:';
+              const secureFlag = isSecure ? '; Secure' : '';
+              
+              // PKCE 쿠키는 더 긴 만료시간 설정
+              const cookieMaxAge = key.includes('pkce') || key.includes('code-verifier') ? 60 * 60 : maxAge; // 1시간
+              document.cookie = `${key}=${encodeURIComponent(value)}; path=/; max-age=${cookieMaxAge}; SameSite=Lax${secureFlag}`;
+              
+              // 디버깅용 로그 (PKCE 관련만)
+              if (key.includes('pkce') || key.includes('code-verifier') || key.includes('auth-token')) {
+                console.log(`🔐 PKCE 쿠키 설정: ${key.substring(0, 30)}...`);
+              }
+            } catch (error) {
+              console.error('Storage setItem 오류:', key, error);
+            }
           },
           removeItem: (key: string) => {
             if (typeof window === 'undefined') return;
             
-            // localStorage에서 제거
-            window.localStorage.removeItem(key);
-            
-            // 쿠키에서도 제거
-            const isSecure = window.location.protocol === 'https:';
-            const secureFlag = isSecure ? '; Secure' : '';
-            document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secureFlag}`;
+            try {
+              // localStorage에서 제거
+              window.localStorage.removeItem(key);
+              
+              // 쿠키에서도 제거
+              const isSecure = window.location.protocol === 'https:';
+              const secureFlag = isSecure ? '; Secure' : '';
+              document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secureFlag}`;
+            } catch (error) {
+              console.error('Storage removeItem 오류:', key, error);
+            }
           }
         }
       }
