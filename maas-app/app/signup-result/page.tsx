@@ -42,6 +42,8 @@ export default function SignupResultPage() {
         }
       } else if (errorParam === 'pkce_cookie_missing') {
         setError('브라우저 쿠키가 차단되어 있습니다. 쿠키를 활성화하고 다시 시도해주세요.');
+      } else if (errorParam === 'env_loading_failed') {
+        setError('서버 환경 설정 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
       } else if (errorParam === 'no_test_data') {
         setError('테스트 결과를 찾을 수 없습니다. 테스트를 다시 진행해주세요.');
       } else {

@@ -3,6 +3,10 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { Database } from '@/lib/supabase/database.types'
 
+// Edge Runtime 대신 Node.js Runtime 강제 사용
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
@@ -19,10 +23,24 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = await cookies()
     
-    // Supabase 클라이언트 생성 - 쿠키 처리 개선
+    // 환경 변수 검증
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ 환경 변수 로딩 실패:', {
+        runtime: process.env.VERCEL_RUNTIME || 'local',
+        supabaseUrl: !!supabaseUrl,
+        supabaseAnonKey: !!supabaseAnonKey,
+        timestamp: new Date().toISOString()
+      });
+      return NextResponse.redirect(`${origin}/signup-result?error=env_loading_failed&desc=${encodeURIComponent('서버 환경 설정 오류가 발생했습니다.')}`)
+    }
+    
+    // Supabase 클라이언트 생성 - 환경 변수 검증 후
     const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl,
+      supabaseAnonKey,
       {
         cookies: {
           get(name: string) {
