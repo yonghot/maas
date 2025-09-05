@@ -129,24 +129,43 @@ export default function DebugOAuthPage() {
   const testRealOAuth = async (provider: 'google' | 'kakao') => {
     setIsLoading(true);
     console.log('🚀 실제 OAuth 시작:', provider);
+    console.log('📍 현재 Origin:', window.location.origin);
+    console.log('🔗 Redirect URL:', `${window.location.origin}/auth/callback`);
     
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
+      
+      // OAuth URL 생성을 먼저 시도 (브라우저 리다이렉트 없이)
+      console.log('🔐 OAuth URL 생성 시도...');
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          skipBrowserRedirect: false
+          skipBrowserRedirect: true // 일단 URL만 생성해서 확인
         }
       });
       
       if (error) {
-        console.error('OAuth 실패:', error);
-        alert(`OAuth 실패: ${error.message}`);
+        console.error('❌ OAuth URL 생성 실패:', error);
+        alert(`OAuth URL 생성 실패:\n${error.message}\n\n가능한 원인:\n1. Supabase에서 ${provider} Provider가 비활성화됨\n2. Client ID/Secret이 설정되지 않음`);
+        return;
+      }
+      
+      if (data?.url) {
+        console.log('✅ OAuth URL 생성 성공:', data.url);
+        alert(`OAuth URL이 생성되었습니다!\n\n이제 실제로 이동하시겠습니까?\n\nURL: ${data.url.substring(0, 100)}...`);
+        
+        // 사용자 확인 후 실제 리다이렉트
+        if (confirm('OAuth 페이지로 이동하시겠습니까?')) {
+          window.location.href = data.url;
+        }
+      } else {
+        console.error('❌ URL이 반환되지 않음');
+        alert('OAuth URL이 생성되지 않았습니다.');
       }
     } catch (error: any) {
-      console.error('예외:', error);
-      alert(`예외 발생: ${error.message}`);
+      console.error('❌ 예외 발생:', error);
+      alert(`예외 발생: ${error.message}\n\n${error.stack}`);
     } finally {
       setIsLoading(false);
     }
