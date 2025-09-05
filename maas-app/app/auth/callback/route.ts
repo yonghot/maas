@@ -8,7 +8,15 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
+  console.log('🔍 ========== OAuth Callback 디버깅 시작 ==========');
+  console.log('⏰ 시간:', new Date().toISOString());
+  console.log('🌍 환경:', process.env.VERCEL ? 'Vercel Production' : 'Local');
+  console.log('🔧 Runtime:', process.env.VERCEL_RUNTIME || 'unknown');
+  
   const { searchParams, origin } = new URL(request.url)
+  console.log('📍 Origin:', origin);
+  console.log('🔗 전체 URL:', request.url);
+  
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/result'
   const error = searchParams.get('error')
@@ -23,18 +31,39 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = await cookies()
     
-    // 환경 변수 검증
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    // 환경 변수 검증 (매우 상세하게)
+    console.log('🔑 환경 변수 체크 시작...');
     
+    // 폴백 값 설정 (Vercel 환경 변수가 로드되지 않을 경우를 대비)
+    const FALLBACK_SUPABASE_URL = 'https://hvpyqchgimnzaotwztuy.supabase.co';
+    const FALLBACK_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2cHlxY2hnaW1uemFvdHd6dHV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0NTY4ODgsImV4cCI6MjA3MTAzMjg4OH0.8prtIUesStj4xNabIKY3yVlrbvWseAYIUM11rk7KZX4';
+    
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || FALLBACK_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || FALLBACK_ANON_KEY;
+    
+    // 폴백 사용 여부 로깅
+    console.log('🔍 환경 변수 소스:', {
+      url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'ENV' : 'FALLBACK',
+      key: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'ENV' : 'FALLBACK'
+    });
+    
+    console.log('📊 환경 변수 상태:');
+    console.log('  - NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? `✅ (${supabaseUrl.substring(0, 30)}...)` : '❌ undefined');
+    console.log('  - NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseAnonKey ? `✅ (길이: ${supabaseAnonKey.length})` : '❌ undefined');
+    console.log('  - NODE_ENV:', process.env.NODE_ENV);
+    console.log('  - VERCEL:', process.env.VERCEL);
+    console.log('  - VERCEL_ENV:', process.env.VERCEL_ENV);
+    
+    // 폴백 값이 있으므로 이제는 절대 실패하지 않음
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('❌ 환경 변수 로딩 실패:', {
-        runtime: process.env.VERCEL_RUNTIME || 'local',
-        supabaseUrl: !!supabaseUrl,
-        supabaseAnonKey: !!supabaseAnonKey,
-        timestamp: new Date().toISOString()
-      });
+      // 이 경우는 발생하지 않아야 함 (폴백이 있으므로)
+      console.error('❌ 치명적 오류: 폴백 값도 없음');
       return NextResponse.redirect(`${origin}/signup-result?error=env_loading_failed&desc=${encodeURIComponent('서버 환경 설정 오류가 발생했습니다.')}`)
+    }
+    
+    // 폴백을 사용 중인 경우 경고
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.warn('⚠️ 경고: 폴백 환경 변수 사용 중 - Vercel 환경 변수 설정 필요');
     }
     
     // Supabase 클라이언트 생성 - 환경 변수 검증 후
@@ -69,18 +98,35 @@ export async function GET(request: Request) {
     )
     
     try {
-      // 세션 교환 시도 전 PKCE 쿠키 상태 확인
+      // 세션 교환 시도 전 PKCE 쿠키 상태 확인 (매우 상세)
       console.log('🔄 세션 교환 시작...')
+      console.log('📝 OAuth Code:', code ? `있음 (길이: ${code.length})` : '없음')
       
       // 모든 쿠키 확인 (디버깅용)
       const allCookies = cookieStore.getAll()
+      console.log(`🍪 전체 쿠키 개수: ${allCookies.length}`)
+      
       const authCookies = allCookies.filter(c => 
         c.name.includes('auth') || 
         c.name.includes('pkce') || 
         c.name.includes('code') ||
         c.name.includes('sb-')
       )
-      console.log('🍪 인증 관련 쿠키:', authCookies.map(c => ({ name: c.name, hasValue: !!c.value })))
+      console.log('🍪 인증 관련 쿠키 상세:', authCookies.map(c => ({
+        name: c.name,
+        hasValue: !!c.value,
+        length: c.value?.length || 0
+      })))
+      
+      // PKCE 쿠키 특별 체크
+      const pkceVerifier = allCookies.find(c => 
+        c.name.includes('code-verifier') || 
+        c.name.includes('code_verifier') ||
+        c.name.includes('pkce')
+      )
+      console.log('🔐 PKCE Verifier 쿠키:', pkceVerifier ? `찾음 (${pkceVerifier.name})` : '못 찾음')
+      
+      console.log('📤 exchangeCodeForSession 호출 직전...')
       
       const { data, error: sessionError } = await supabase.auth.exchangeCodeForSession(code)
       

@@ -128,11 +128,22 @@ export default function SignupResultPage() {
       }
       
       // PKCE 코드 수동 생성 및 설정
-      console.log('🔐 PKCE 코드 생성 중...');
+      console.log('🔐 ===== OAuth 로그인 시작 =====');
+      console.log('📅 시간:', new Date().toISOString());
+      console.log('🌐 현재 Origin:', window.location.origin);
+      console.log('🎯 Provider:', provider);
+      console.log('🔑 환경 변수 체크:');
+      console.log('  - NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? '✅' : '❌');
+      console.log('  - NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅' : '❌');
       
       // OAuth 시작 전에 세션 확인
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('현재 세션 상태:', sessionData?.session ? '세션 있음' : '세션 없음');
+      console.log('🔍 현재 세션 상태:', sessionData?.session ? '세션 있음' : '세션 없음');
+      
+      // 현재 쿠키 상태 확인 (브라우저)
+      console.log('🍪 현재 브라우저 쿠키:', document.cookie);
+      
+      console.log('📤 signInWithOAuth 호출 직전...');
       
       // signInWithOAuth 호출
       const { data, error } = await supabase.auth.signInWithOAuth({
